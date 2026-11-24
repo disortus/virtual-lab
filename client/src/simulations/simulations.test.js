@@ -7,6 +7,8 @@ import { calculateProjectile, generateProjectileTrajectory } from './projectile-
 import { calculateRefraction, generateRefractionCurve } from './refraction/model.js';
 import { calculateSeriesParallel, generateSeriesParallelSeries } from './series-parallel/model.js';
 import { calculateNewtonsSecondLaw, generateNewtonChartSeries } from './newtons-second-law/model.js';
+import { calculateIdealGas, generateIdealGasIsotherm } from './ideal-gas/model.js';
+import { calculateWaveInterference, generateInterferenceCurve, sampleWaves } from './wave-interference/model.js';
 import { computeExperimentState, EXPERIMENT_LIST } from './index.js';
 
 function assertNoBadNumbers(obj) {
@@ -17,9 +19,18 @@ function assertNoBadNumbers(obj) {
   }
 }
 
-test('Experiment registry contains physics experiments including Series/Parallel and Newton 2nd Law', () => {
-  assert.ok(EXPERIMENT_LIST.length >= 6);
-  for (const id of ['ohms-law', 'free-fall', 'projectile-motion', 'refraction', 'series-parallel', 'newtons-second-law']) {
+test('Experiment registry contains all 8 physics experiments across 5 branches', () => {
+  assert.equal(EXPERIMENT_LIST.length, 8);
+  for (const id of [
+    'ohms-law',
+    'free-fall',
+    'projectile-motion',
+    'refraction',
+    'series-parallel',
+    'newtons-second-law',
+    'ideal-gas',
+    'wave-interference',
+  ]) {
     assert.ok(EXPERIMENT_LIST.some((e) => e.id === id), `Missing ${id}`);
   }
 });
@@ -168,4 +179,34 @@ test("Newton's Second Law: calculates F_net, friction threshold, acceleration, a
 
   const nChart = generateNewtonChartSeries({ mass: 10, frictionForce: 20, appliedForce: 60 });
   assert.equal(nChart.operatingPoint.y, 4);
+});
+
+test('Ideal Gas Law: calculates PV = nRT and Boyle-Mariotte compression', () => {
+  const std = calculateIdealGas({ temperature: 300, volume: 22.4, moles: 1 });
+  assert.ok(Math.abs(std.pressureKpa - 111.35) < 0.05);
+  assertNoBadNumbers(std);
+
+  const compressed = calculateIdealGas({ temperature: 300, volume: 11.2, moles: 1 });
+  assert.ok(Math.abs(compressed.pressureKpa - std.pressureKpa * 2) < 0.05);
+
+  const iso = generateIdealGasIsotherm({ temperature: 600, volume: 22.4, moles: 1 });
+  assert.ok(iso.currentPoints.length > 10);
+});
+
+test('Wave Interference: calculates constructive (0 deg), destructive (180 deg), and y_total = y1 + y2', () => {
+  const constructive = calculateWaveInterference({ amplitude: 1.5, frequency: 2, wavelength: 3, phaseShift: 0 });
+  assert.equal(constructive.resultantAmplitude, 3);
+  assert.equal(constructive.waveSpeed, 6);
+  assert.equal(constructive.interferenceType, 'constructive');
+  assertNoBadNumbers(constructive);
+
+  const destructive = calculateWaveInterference({ amplitude: 1.5, frequency: 2, wavelength: 3, phaseShift: 180 });
+  assert.ok(destructive.resultantAmplitude < 0.001);
+  assert.equal(destructive.interferenceType, 'destructive');
+
+  const samples = sampleWaves({ amplitude: 1.5, frequency: 1, wavelength: 3, phaseShift: 180, time: 0, samples: 24 });
+  assert.ok(samples.every((pt) => Math.abs(pt.yTotal) < 0.001));
+
+  const curve = generateInterferenceCurve({ amplitude: 1.5, phaseShift: 90 });
+  assert.ok(Math.abs(curve.operatingPoint.y - 2.121) < 0.02);
 });

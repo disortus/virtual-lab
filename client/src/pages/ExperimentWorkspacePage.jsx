@@ -8,12 +8,16 @@ import { REFRACTION_BOUNDS, generateRefractionCurve } from '../simulations/refra
 import { MEDIA_PRESETS } from '../simulations/refraction/config.js';
 import { SERIES_PARALLEL_BOUNDS, generateSeriesParallelSeries } from '../simulations/series-parallel/model.js';
 import { NEWTON_BOUNDS, generateNewtonChartSeries } from '../simulations/newtons-second-law/model.js';
+import { IDEAL_GAS_BOUNDS, generateIdealGasIsotherm } from '../simulations/ideal-gas/model.js';
+import { WAVE_BOUNDS, generateInterferenceCurve } from '../simulations/wave-interference/model.js';
 import { OhmsLawStage } from '../simulations/ohms-law/Stage.jsx';
 import { FreeFallStage } from '../simulations/free-fall/Stage.jsx';
 import { ProjectileStage } from '../simulations/projectile-motion/Stage.jsx';
 import { RefractionStage } from '../simulations/refraction/Stage.jsx';
 import { SeriesParallelStage } from '../simulations/series-parallel/Stage.jsx';
 import { NewtonsSecondLawStage } from '../simulations/newtons-second-law/Stage.jsx';
+import { IdealGasStage } from '../simulations/ideal-gas/Stage.jsx';
+import { WaveInterferenceStage } from '../simulations/wave-interference/Stage.jsx';
 import { RangeSlider } from '../components/ui/RangeSlider.jsx';
 import { MeterReadout } from '../components/ui/MeterReadout.jsx';
 import { ScientificChart } from '../components/charts/ScientificChart.jsx';
@@ -343,6 +347,45 @@ export function ExperimentWorkspacePage() {
         },
       ],
     };
+  } else if (experiment.id === 'ideal-gas') {
+    const gasSeries = generateIdealGasIsotherm(params);
+    chartProps = {
+      title: `Изотерма P(V) при T = ${params.temperature} К и n = ${params.moles} моль`,
+      xLabel: 'Объём V (л)',
+      yLabel: 'Давление P (кПа)',
+      caption: 'Гипербола Бойля–Мариотта: синяя кривая — текущая температура, пунктир — эталон 300 К.',
+      datasets: [
+        { label: `Текущая изотерма (${params.temperature} К)`, data: gasSeries.currentPoints, color: '#315BE8', fill: true },
+        { label: 'Эталон 300 К', data: gasSeries.referencePoints, color: '#747B83', dashed: true },
+        {
+          label: 'Текущее состояние',
+          data: [gasSeries.operatingPoint],
+          color: '#EF8737',
+          fillColor: '#EF8737',
+          pointRadius: 6,
+          showLine: false,
+        },
+      ],
+    };
+  } else if (experiment.id === 'wave-interference') {
+    const waveSeries = generateInterferenceCurve(params);
+    chartProps = {
+      title: `Результирующая амплитуда A_рез(Δφ) при A = ${params.amplitude} см`,
+      xLabel: 'Разность фаз Δφ (°)',
+      yLabel: 'Амплитуда A_рез (см)',
+      caption: 'Минимум при 180° (деструктивная интерференция), максимум при 0° и 360° (конструктивная).',
+      datasets: [
+        { label: 'Кривая интерференции', data: waveSeries.points, color: '#315BE8', fill: true },
+        {
+          label: 'Текущая фаза',
+          data: [waveSeries.operatingPoint],
+          color: '#EF8737',
+          fillColor: '#EF8737',
+          pointRadius: 6,
+          showLine: false,
+        },
+      ],
+    };
   }
 
   return (
@@ -466,6 +509,12 @@ export function ExperimentWorkspacePage() {
               {experiment.id === 'newtons-second-law' ? (
                 <NewtonsSecondLawStage params={params} onLiveStateChange={setLiveKinematics} />
               ) : null}
+
+              {experiment.id === 'ideal-gas' ? <IdealGasStage state={computed} /> : null}
+
+              {experiment.id === 'wave-interference' ? (
+                <WaveInterferenceStage params={params} state={computed} />
+              ) : null}
             </div>
           </section>
 
@@ -569,6 +618,35 @@ export function ExperimentWorkspacePage() {
                     symbol="v(t)"
                     value={liveKinematics ? liveKinematics.velocity : 0}
                     unit="м/с"
+                  />
+                </>
+              ) : null}
+
+              {experiment.id === 'ideal-gas' ? (
+                <>
+                  <MeterReadout label="Давление" symbol="P" value={computed.pressureKpa} unit="кПа" accent />
+                  <MeterReadout label="Давление (атм)" symbol="P_атм" value={computed.pressureAtm} unit="атм" />
+                  <MeterReadout label="Температура" symbol="T" value={computed.temperature} unit="К" />
+                  <MeterReadout label="Объём сосуда" symbol="V" value={computed.volume} unit="л" />
+                </>
+              ) : null}
+
+              {experiment.id === 'wave-interference' ? (
+                <>
+                  <MeterReadout
+                    label="Результ. амплитуда"
+                    symbol="A_рез"
+                    value={computed.resultantAmplitude}
+                    unit="см"
+                    accent
+                  />
+                  <MeterReadout label="Разность фаз" symbol="Δφ" value={computed.phaseShift} unit="°" />
+                  <MeterReadout label="Скорость волны" symbol="v" value={computed.waveSpeed} unit="м/с" />
+                  <MeterReadout
+                    label="Интенсивность"
+                    symbol="I/I_max"
+                    value={computed.intensityRatio}
+                    unit=""
                   />
                 </>
               ) : null}
@@ -819,6 +897,86 @@ export function ExperimentWorkspacePage() {
                       step={NEWTON_BOUNDS.frictionForce.step}
                       value={params.frictionForce}
                       onChange={(v) => updateParam('frictionForce', v, 'сила трения')}
+                    />
+                  </>
+                ) : null}
+
+                {experiment.id === 'ideal-gas' ? (
+                  <>
+                    <RangeSlider
+                      label="Температура"
+                      symbol="T"
+                      unit="К"
+                      min={IDEAL_GAS_BOUNDS.temperature.min}
+                      max={IDEAL_GAS_BOUNDS.temperature.max}
+                      step={IDEAL_GAS_BOUNDS.temperature.step}
+                      value={params.temperature}
+                      onChange={(v) => updateParam('temperature', v, 'температура T')}
+                    />
+                    <RangeSlider
+                      label="Объём сосуда"
+                      symbol="V"
+                      unit="л"
+                      min={IDEAL_GAS_BOUNDS.volume.min}
+                      max={IDEAL_GAS_BOUNDS.volume.max}
+                      step={IDEAL_GAS_BOUNDS.volume.step}
+                      value={params.volume}
+                      onChange={(v) => updateParam('volume', v, 'объём V')}
+                    />
+                    <RangeSlider
+                      label="Количество вещества"
+                      symbol="n"
+                      unit="моль"
+                      min={IDEAL_GAS_BOUNDS.moles.min}
+                      max={IDEAL_GAS_BOUNDS.moles.max}
+                      step={IDEAL_GAS_BOUNDS.moles.step}
+                      value={params.moles}
+                      onChange={(v) => updateParam('moles', v, 'количество вещества n')}
+                    />
+                  </>
+                ) : null}
+
+                {experiment.id === 'wave-interference' ? (
+                  <>
+                    <RangeSlider
+                      label="Амплитуда волн"
+                      symbol="A"
+                      unit="см"
+                      min={WAVE_BOUNDS.amplitude.min}
+                      max={WAVE_BOUNDS.amplitude.max}
+                      step={WAVE_BOUNDS.amplitude.step}
+                      value={params.amplitude}
+                      onChange={(v) => updateParam('amplitude', v, 'амплитуда A')}
+                    />
+                    <RangeSlider
+                      label="Частота"
+                      symbol="f"
+                      unit="Гц"
+                      min={WAVE_BOUNDS.frequency.min}
+                      max={WAVE_BOUNDS.frequency.max}
+                      step={WAVE_BOUNDS.frequency.step}
+                      value={params.frequency}
+                      onChange={(v) => updateParam('frequency', v, 'частота f')}
+                    />
+                    <RangeSlider
+                      label="Длина волны"
+                      symbol="λ"
+                      unit="м"
+                      min={WAVE_BOUNDS.wavelength.min}
+                      max={WAVE_BOUNDS.wavelength.max}
+                      step={WAVE_BOUNDS.wavelength.step}
+                      value={params.wavelength}
+                      onChange={(v) => updateParam('wavelength', v, 'длина волны λ')}
+                    />
+                    <RangeSlider
+                      label="Сдвиг фаз"
+                      symbol="Δφ"
+                      unit="°"
+                      min={WAVE_BOUNDS.phaseShift.min}
+                      max={WAVE_BOUNDS.phaseShift.max}
+                      step={WAVE_BOUNDS.phaseShift.step}
+                      value={params.phaseShift}
+                      onChange={(v) => updateParam('phaseShift', v, 'сдвиг фаз Δφ')}
                     />
                   </>
                 ) : null}

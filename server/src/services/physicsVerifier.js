@@ -161,6 +161,41 @@ export const EXPERIMENT_SPECS = {
       };
     },
   },
+  'ideal-gas': {
+    id: 'ideal-gas',
+    title: 'Уравнение состояния идеального газа',
+    objective: 'Исследовать зависимость давления от объёма, абсолютной температуры и количества вещества (PV = nRT).',
+    units: { temperature: 'К', volume: 'л', moles: 'моль', pressureKpa: 'кПа', pressureAtm: 'атм' },
+    compute(rawParams = {}) {
+      const temperature = round(sanitizeNumber(rawParams.temperature, 300, 200, 800), 1);
+      const volume = round(sanitizeNumber(rawParams.volume, 22.4, 5, 50), 2);
+      const moles = round(sanitizeNumber(rawParams.moles, 1.0, 0.5, 5.0), 2);
+      const pressureKpa = round((moles * 8.314 * temperature) / volume, 2);
+      const pressureAtm = round(pressureKpa / 101.325, 3);
+      return {
+        parameters: { temperature, volume, moles },
+        results: { pressureKpa, pressureAtm },
+      };
+    },
+  },
+  'wave-interference': {
+    id: 'wave-interference',
+    title: 'Интерференция и суперпозиция волн',
+    objective: 'Исследовать сложение двух когерентных волн и условия конструктивной/деструктивной интерференции.',
+    units: { amplitude: 'см', frequency: 'Гц', wavelength: 'м', phaseShift: '°', resultantAmplitude: 'см', waveSpeed: 'м/с' },
+    compute(rawParams = {}) {
+      const amplitude = round(sanitizeNumber(rawParams.amplitude, 1.5, 0.5, 3.0), 2);
+      const frequency = round(sanitizeNumber(rawParams.frequency, 1.5, 0.5, 4.0), 2);
+      const wavelength = round(sanitizeNumber(rawParams.wavelength, 3.0, 1.0, 6.0), 2);
+      const phaseShift = round(sanitizeNumber(rawParams.phaseShift, 0, 0, 360), 1);
+      const waveSpeed = round(wavelength * frequency, 2);
+      const resultantAmplitude = round(2 * amplitude * Math.abs(Math.cos(degToRad(phaseShift) / 2)), 3);
+      return {
+        parameters: { amplitude, frequency, wavelength, phaseShift },
+        results: { waveSpeed, resultantAmplitude },
+      };
+    },
+  },
 };
 
 export function verifySimulationContext(experimentId, rawParams, rawMeasurements = []) {

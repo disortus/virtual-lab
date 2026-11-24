@@ -169,6 +169,32 @@ test('POST /api/mentor/explain verifies Series/Parallel and Newton 2nd Law serve
     const nJson = await nRes.json();
     assert.equal(nJson.verifiedContext.results.netForce, 40);
     assert.equal(nJson.verifiedContext.results.acceleration, 4);
+
+    const gasRes = await fetch(`${baseUrl}/api/mentor/explain`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        experimentId: 'ideal-gas',
+        mode: 'free',
+        parameters: { temperature: 300, volume: 20, moles: 1 },
+      }),
+    });
+    assert.equal(gasRes.status, 200);
+    const gasJson = await gasRes.json();
+    assert.ok(Math.abs(gasJson.verifiedContext.results.pressureKpa - 124.71) < 0.1);
+
+    const waveRes = await fetch(`${baseUrl}/api/mentor/explain`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        experimentId: 'wave-interference',
+        mode: 'free',
+        parameters: { amplitude: 2, frequency: 1.5, wavelength: 3, phaseShift: 180 },
+      }),
+    });
+    assert.equal(waveRes.status, 200);
+    const waveJson = await waveRes.json();
+    assert.ok(waveJson.verifiedContext.results.resultantAmplitude < 0.001);
   } finally {
     server.close();
   }

@@ -49,6 +49,18 @@ function buildOfflineFallbackReply(endpointType, payload) {
       `ускорение a = ${results.acceleration} м/с².\n\nКак изменится ускорение при удвоении массы?`
     );
   }
+  if (experimentId === 'ideal-gas') {
+    return (
+      `[Локальный Demo-режим: сервер недоступен] При T = ${parameters.temperature} К, V = ${parameters.volume} л и n = ${parameters.moles} моль ` +
+      `давление газа равно ${results.pressureKpa} кПа.\n\nКак изменится давление, если уменьшить объём вдвое?`
+    );
+  }
+  if (experimentId === 'wave-interference') {
+    return (
+      `[Локальный Demo-режим: сервер недоступен] При A = ${parameters.amplitude} см и Δφ = ${parameters.phaseShift}° ` +
+      `результирующая амплитуда A_рез = ${results.resultantAmplitude} см.\n\nПри каком сдвиге фаз волны полностью гасят друг друга?`
+    );
+  }
   return (
     `[Локальный Demo-режим: сервер недоступен] При n₁ = ${parameters.n1}, n₂ = ${parameters.n2} и θ₁ = ${parameters.incidentAngle}° ` +
     (results.isTotalInternalReflection

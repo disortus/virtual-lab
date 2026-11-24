@@ -238,6 +238,58 @@ function buildNewtonDemo(payload) {
   return `На стенде: m = ${mass} кг, F_рез = ${netForce} Н, a = ${acceleration} м/с². Как изменится наклон графика a(F), если увеличить массу m?`;
 }
 
+function buildIdealGasDemo(payload) {
+  const { parameters, results, measurements } = payload.verifiedContext;
+  const { temperature, volume, moles } = parameters;
+  const { pressureKpa, pressureAtm } = results;
+
+  if (payload.endpointType === 'analyze' && payload.action === 'review_conclusion') {
+    return (
+      `Ты проверил(а) состояние газа: T = ${temperature} К, V = ${volume} л, n = ${moles} моль → P = ${pressureKpa} кПа. ` +
+      'Убедись, что в заключении отражено, почему при постоянной T произведение P·V остаётся постоянным.'
+    );
+  }
+  if (payload.endpointType === 'analyze') {
+    return (
+      `В журнале замеров: ${measurements.length}. Сейчас при V = ${volume} л и T = ${temperature} К манометр показывает ${pressureKpa} кПа (${pressureAtm} атм).\n\n` +
+      'Умножь давление P на объём V для двух замеров при одинаковой температуре — что ты замечаешь?'
+    );
+  }
+  if (payload.mode === 'free' || payload.endpointType === 'explain') {
+    return (
+      `В цилиндре объёмом ${volume} л находится ${moles} моль газа при абсолютной температуре ${temperature} К. По уравнению Менделеева–Клапейрона P = nRT/V давление равно ${pressureKpa} кПа (${pressureAtm} атм).\n\n` +
+      'Если сжать поршень до половины объёма при неизменной температуре, как изменится частота ударов молекул о стенки?'
+    );
+  }
+  return `Сейчас: T = ${temperature} К, V = ${volume} л, P = ${pressureKpa} кПа. Какой закон (Бойля–Мариотта или Шарля) ты хочешь проверить следующим шагом?`;
+}
+
+function buildWaveDemo(payload) {
+  const { parameters, results, measurements } = payload.verifiedContext;
+  const { amplitude, frequency, wavelength, phaseShift } = parameters;
+  const { resultantAmplitude, waveSpeed } = results;
+
+  if (payload.endpointType === 'analyze' && payload.action === 'review_conclusion') {
+    return (
+      `Для A = ${amplitude} см и сдвига фаз Δφ = ${phaseShift}° получена амплитуда A_рез = ${resultantAmplitude} см. ` +
+      'Проверь, указаны ли в выводе условия усиления (Δφ = 0°, 360°) и полного гашения (Δφ = 180°).'
+    );
+  }
+  if (payload.endpointType === 'analyze') {
+    return (
+      `Зафиксировано замеров: ${measurements.length}. При Δφ = ${phaseShift}° результирующая амплитуда A_рез = ${resultantAmplitude} см (скорость волн v = ${waveSpeed} м/с).\n\n` +
+      'Почему при Δφ = 180° суммарная кривая превращается в прямую линию, хотя обе волны продолжают колебаться?'
+    );
+  }
+  if (payload.mode === 'free' || payload.endpointType === 'explain') {
+    return (
+      `Две волны с амплитудой ${amplitude} см и длиной волны ${wavelength} м распространяются со скоростью v = λ·f = ${waveSpeed} м/с со сдвигом фаз Δφ = ${phaseShift}°. Их суперпозиция даёт амплитуду A_рез = ${resultantAmplitude} см.\n\n` +
+      'При каком значении сдвига фаз Δφ гребни одной волны точно совпадут со впадинами другой?'
+    );
+  }
+  return `Осциллограф: A = ${amplitude} см, Δφ = ${phaseShift}°, A_рез = ${resultantAmplitude} см. Попробуй установить Δφ = 180° и проверь результат!`;
+}
+
 export function generateDemoMentorReply(payload) {
   if (payload.isInjectionAttempt) {
     return INJECTION_DEFLECTION;
@@ -256,6 +308,10 @@ export function generateDemoMentorReply(payload) {
       return buildSeriesParallelDemo(payload);
     case 'newtons-second-law':
       return buildNewtonDemo(payload);
+    case 'ideal-gas':
+      return buildIdealGasDemo(payload);
+    case 'wave-interference':
+      return buildWaveDemo(payload);
     default:
       return 'Опиши, какие изменения параметров ты сейчас наблюдаешь в симуляции.';
   }
