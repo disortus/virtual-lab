@@ -1,0 +1,24 @@
+@media print {
+  .site-header,
+  .site-footer,
+  .no-print,
+  .skip-link {
+    display: none !important;
+  }
+
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+
+  .panel {
+    border-color: #333333 !important;
+    break-inside: avoid;
+  }
+
+  .report-sheet {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}

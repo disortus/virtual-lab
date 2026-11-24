@@ -1,0 +1,210 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  color: var(--ink-primary);
+  background-color: var(--bg-ivory);
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure {
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+a {
+  color: inherit;
+}
+
+/* Accessible Visually Hidden Utility */
+.visually-hidden:where(:not(:focus-within, :active)) {
+  position: absolute !important;
+  clip-path: inset(50%) !important;
+  overflow: hidden !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  white-space: nowrap !important;
+}
+
+.skip-link {
+  position: fixed;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 999;
+  padding: 0.625rem 1rem;
+  background: var(--bg-ink);
+  color: var(--ink-on-dark);
+  border: 2px solid var(--accent-orange);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  text-decoration: none;
+}
+
+/* Focus indicators — high contrast 3:1+ with offset */
+:where(a:any-link, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2.5px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
+/* Monospace numeric utility */
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Blueprint drafting grid surface */
+.grid-surface {
+  background-color: var(--bg-paper);
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Native Range Slider — per modern-web-guidance 'slider' guide */
+input[type='range'].lab-slider {
+  --slider-track-size: 0.375rem;
+  --slider-thumb-size: 1.15rem;
+  --slider-track-radius: 2px;
+  --slider-thumb-radius: 2px;
+  --slider-track-color: var(--border-hairline);
+  --slider-fill-color: var(--accent-blue);
+  --slider-thumb-color: var(--ink-primary);
+  --slider-direction: to right;
+
+  --attr-min: 0;
+  --attr-max: 100;
+  --control-value: 50;
+  --slider-progress: calc(
+    progress(var(--control-value), var(--attr-min), var(--attr-max)) * 100%
+  );
+
+  appearance: none;
+  inline-size: 100%;
+  block-size: 2.25rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+@supports not (opacity: progress(1, 0, 100)) {
+  input[type='range'].lab-slider {
+    --slider-progress: calc(
+      (var(--control-value) - var(--attr-min)) /
+        max(1, var(--attr-max) - var(--attr-min)) * 100%
+    );
+  }
+}
+
+/* WebKit/Blink track & thumb (declared separately from Firefox) */
+input[type='range'].lab-slider::-webkit-slider-runnable-track {
+  block-size: var(--slider-track-size);
+  border: 0;
+  border-radius: var(--slider-track-radius);
+  background: linear-gradient(
+    var(--slider-direction),
+    var(--slider-fill-color) var(--slider-progress),
+    var(--slider-track-color) var(--slider-progress)
+  );
+}
+
+input[type='range'].lab-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  inline-size: var(--slider-thumb-size);
+  block-size: var(--slider-thumb-size);
+  margin-block-start: calc((var(--slider-track-size) - var(--slider-thumb-size)) / 2);
+  border: 2px solid var(--bg-paper);
+  border-radius: var(--slider-thumb-radius);
+  background: var(--slider-thumb-color);
+  box-shadow: 0 0 0 1px var(--ink-primary);
+}
+
+/* Firefox track, progress & thumb */
+input[type='range'].lab-slider::-moz-range-track {
+  block-size: var(--slider-track-size);
+  border: 0;
+  border-radius: var(--slider-track-radius);
+  background: var(--slider-track-color);
+}
+
+input[type='range'].lab-slider::-moz-range-progress {
+  block-size: var(--slider-track-size);
+  border-radius: var(--slider-track-radius);
+  background: var(--slider-fill-color);
+}
+
+input[type='range'].lab-slider::-moz-range-thumb {
+  inline-size: var(--slider-thumb-size);
+  block-size: var(--slider-thumb-size);
+  border: 2px solid var(--bg-paper);
+  border-radius: var(--slider-thumb-radius);
+  background: var(--slider-thumb-color);
+  box-shadow: 0 0 0 1px var(--ink-primary);
+}
+
+input[type='range'].lab-slider:focus-visible {
+  outline: 2.5px solid var(--accent-blue);
+  outline-offset: 4px;
+}
+
+@media (pointer: coarse) {
+  input[type='range'].lab-slider {
+    --slider-thumb-size: 1.5rem;
+    block-size: 2.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

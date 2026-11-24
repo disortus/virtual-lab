@@ -1,0 +1,59 @@
+:root {
+  /* Core Palette — Scientific Editorial / Modern Research Instrument */
+  --bg-ivory: #F3F0E8;
+  --bg-paper: #FFFFFF;
+  --bg-linen: #EAE5D9;
+  --bg-instrument: #FAF8F3;
+  --bg-ink: #17212B;
+
+  --ink-primary: #17212B;
+  --ink-secondary: #505862;
+  --ink-muted: #747B83;
+  --ink-on-dark: #F3F0E8;
+
+  /* Functional Scientific Accents */
+  --accent-blue: #315BE8;
+  --accent-blue-hover: #2447C4;
+  --accent-blue-soft: rgba(49, 91, 232, 0.08);
+  --accent-orange: #EF8737;
+  --accent-orange-dark: #B55610;
+  --accent-orange-soft: rgba(239, 135, 55, 0.12);
+  --accent-lime: #B8C94B;
+  --accent-lime-soft: rgba(184, 201, 75, 0.24);
+  --accent-danger: #B42318;
+  --accent-danger-soft: rgba(180, 35, 24, 0.08);
+
+  /* Technical Hairlines & Grid */
+  --border-hairline: #D4CEC0;
+  --border-strong: #17212B;
+  --grid-line: rgba(23, 33, 43, 0.055);
+
+  /* Typography */
+  --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* Responsive Type Scale (max <= 2.5x min for WCAG 1.4.4 200% zoom) */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: clamp(1.0625rem, 0.95rem + 0.4vw, 1.25rem);
+  --text-xl: clamp(1.25rem, 1.05rem + 0.8vw, 1.75rem);
+  --text-2xl: clamp(1.5rem, 1.15rem + 1.5vw, 2.35rem);
+  --text-hero: clamp(2rem, 1.4rem + 2.4vw, 3.6rem);
+
+  /* Radii & Spacing */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 3rem;
+  --space-10: 4rem;
+
+  --container-max: 1380px;
+  --header-height: 64px;
+}
