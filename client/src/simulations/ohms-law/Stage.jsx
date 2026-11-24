@@ -79,10 +79,10 @@ export function OhmsLawStage({ state, onToggleCircuit }) {
           <text x="-8" y="21" fontSize="11" fontFamily="IBM Plex Mono" fill="#505862" fontWeight="600">
             −
           </text>
-          <text x="-76" y="-4" fontSize="11" fontFamily="IBM Plex Mono" fill="#505862">
+          <text x="-38" y="-4" textAnchor="end" fontSize="10" fontFamily="IBM Plex Mono" fill="#505862">
             ИСТОЧНИК
           </text>
-          <text x="-76" y="13" fontSize="14" fontFamily="IBM Plex Mono" fill="#17212B" fontWeight="600">
+          <text x="-38" y="13" textAnchor="end" fontSize="13.5" fontFamily="IBM Plex Mono" fill="#17212B" fontWeight="600">
             {voltage} В
           </text>
         </g>

@@ -126,7 +126,7 @@ export function GuidedWorkflow({
                     type="radio"
                     name={`hyp-${experiment.id}`}
                     checked={research.hypothesisId === opt.id}
-                    onChange={() => onSelectHypothesis(opt.id, opt.label, research.hypothesisReasoning)}
+                    onChange={() => onSelectHypothesis(opt.id, opt.label, undefined)}
                     style={{ marginTop: '0.2rem' }}
                   />
                   <span style={{ fontSize: '0.9rem' }}>{opt.label}</span>
@@ -145,9 +145,7 @@ export function GuidedWorkflow({
                 className="lab-textarea"
                 placeholder="Кратко объясни свою физическую логику перед проверкой на стенде..."
                 value={research.hypothesisReasoning}
-                onChange={(e) =>
-                  onSelectHypothesis(research.hypothesisId, research.hypothesisLabel, e.target.value)
-                }
+                onChange={(e) => onSelectHypothesis(undefined, undefined, e.target.value)}
               />
             </div>
 

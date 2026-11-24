@@ -171,12 +171,15 @@
 }
 
 .workspace-bench {
-  container-type: inline-size;
-  container-name: bench;
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.85fr);
   gap: var(--space-4);
   align-items: stretch;
+}
+
+.workspace-bench > *,
+.workspace-analytics-grid > * {
+  min-width: 0;
 }
 
 .workspace-mentor-col {
@@ -200,7 +203,7 @@
   }
 }
 
-@container bench (max-width: 780px) {
+@container workspace (max-width: 780px) {
   .workspace-bench {
     grid-template-columns: 1fr;
   }
