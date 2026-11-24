@@ -56,8 +56,8 @@ export function NewtonsSecondLawStage({ params, onLiveStateChange }) {
     setElapsedTime(0);
   };
 
-  const trackLeft = 72;
-  const trackRight = 590;
+  const trackLeft = 104;
+  const trackRight = 598;
   const railY = 248;
   const cartWidth = Math.round(52 + (params.mass / 50) * 34);
   const cartHeight = Math.round(34 + (params.mass / 50) * 18);
@@ -145,9 +145,9 @@ export function NewtonsSecondLawStage({ params, onLiveStateChange }) {
               fill="#315BE8"
             />
             <text
-              x={cartX + cartWidth + appliedLen / 2}
+              x={cartX + cartWidth + 8}
               y={cartCenterY - 10}
-              textAnchor="middle"
+              textAnchor="start"
               fontSize="10.5"
               fontFamily="IBM Plex Mono"
               fill="#315BE8"
@@ -174,9 +174,9 @@ export function NewtonsSecondLawStage({ params, onLiveStateChange }) {
               fill="#EF8737"
             />
             <text
-              x={Math.max(46, cartX - frictionLen / 2)}
+              x={cartX - 8}
               y={railY - 24}
-              textAnchor="middle"
+              textAnchor="end"
               fontSize="10.5"
               fontFamily="IBM Plex Mono"
               fill="#B55610"

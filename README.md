@@ -1,93 +1,71 @@
-# Virtual Science Lab — ITFest 2026 Beta
+# Virtual Science Lab — ITFest 2026 Beta (Phase 2)
 
 > **Don't just learn science. Discover it.**
 
-**Virtual Science Lab** — интерактивная образовательная платформа для секции *Minds and Machines in Rethinking Learning* (ITFest 2026). Ученик исследует физические явления на детерминированных симуляциях, выдвигает гипотезы, собирает измерения и работает с **AI Lab Mentor**, который обучает по методу Сократа (*«The AI should teach students HOW to think, not WHAT to think»*).
+**Virtual Science Lab** — интерактивная исследовательская лаборатория для секции *Minds and Machines in Rethinking Learning* (ITFest 2026). Ученик исследует физические законы на детерминированных симуляциях, выдвигает гипотезы, вводит точные параметры (слайдерами или вручную), собирает измерения и работает с **AI Lab Mentor** по методу Сократа (*«The AI should teach students HOW to think, not WHAT to think»*).
 
 ---
 
-## Ключевые возможности Beta
+## 8 интерактивных экспериментов по 5 разделам физики
 
-- **4 интерактивные физические симуляции** (`client/src/simulations/`):
-  1. `EXP—01` **Закон Ома** (`I = U / R`, `P = U · I`) — интерактивная схема с ключом, амперметром, потоком зарядов и графиками `I(U)` / `I(R)`.
-  2. `EXP—02` **Свободное падение** (`s = g·t² / 2`, `v = g·t`) — башня падения со стробоскопическими метками, пресетами планет (Луна, Марс, Земля, Юпитер) и кривыми `h(t)`, `v(t)`.
-  3. `EXP—03` **Движение под углом к горизонту** (`L = v₀²·sin(2α) / g`) — баллистический стенд, сравнение прошлых бросков (ghost curves), разложение на `vx` и `vy`.
-  4. `EXP—04` **Преломление света** (`n₁·sin(θ₁) = n₂·sin(θ₂)`) — оптический стенд с нормалью, углами отражения/преломления и полным внутренним отражением (ПВО).
-- **Guided Research Mode**: 6-этапный цикл `Explore → Hypothesize → Experiment → Observe → Analyze → Conclude`.
-- **Free Exploration Mode**: мгновенный доступ к стенду и кнопка **«Объяснить происходящее»**.
-- **AI Lab Mentor**: интеграция с `@google/genai` (Interactions API) на Backend + честный **Demo Mode** без API-ключа.
-- **Научные отчёты**: сохранение в `localStorage`, редактирование заключения, печать / сохранение в PDF.
-- **Каталог лабораторий**: `Physics Lab` (доступно) и `Chemistry Lab` (обозначено как *Coming Soon*).
+### 1. Mechanics & Motion
+- `EXP—02` **Свободное падение тела** (`s = g·t² / 2`) — вакуумная башня со шкалой высоты, стробоскопическими отметками каждые $T/6$ и сравнением планет.
+- `EXP—03` **Движение тела под углом к горизонту** (`L = v₀²·sin(2α) / g`) — баллистический стенд с транспортиром и разложением $\vec{v}(t)$ на $v_x$ и $v_y$.
+- `EXP—06` **Второй закон Ньютона** (`a = (F_тяги − F_тр) / m`) — рельс с тележкой, векторами сил и порогом трения покоя.
 
----
+### 2. Electricity & Circuits
+- `EXP—01` **Закон Ома для участка цепи** (`I = U / R`, `P = U·I`) — лабораторный блок питания, ключ цепи, калиброванный амперметр и тепловая мощность резистора.
+- `EXP—05` **Последовательное и параллельное соединение** (`R_посл = R₁+R₂ | 1/R_пар = 1/R₁+1/R₂`) — живое переключение топологии цепи и токи ветвей.
 
-## Стек
+### 3. Optics
+- `EXP—04` **Преломление света и ПВО** (`n₁·sin(θ₁) = n₂·sin(θ₂)`) — оптический гониометр со шкалой 360°, дугами углов и полным внутренним отражением.
 
-- **Frontend**: React 18, Vite, React Router, Chart.js, чистый ES-модульный JavaScript, SVG/Canvas, CSS Design System (*Scientific Editorial Design*).
-- **Backend**: Node.js, Express, `express-rate-limit`, `cors`, `@google/genai`.
-- **Хранение данных**: `localStorage` (состояние исследований и научные отчёты).
+### 4. Thermodynamics
+- `EXP—07` **Уравнение идеального газа** (`P·V = n·R·T`) — цилиндр с подвижным поршнем, манометр, кинетическая модель молекул и изотермы $P(V)$.
 
----
+### 5. Waves & Oscillations
+- `EXP—08` **Интерференция и суперпозиция волн** (`y_рез = y₁ + y₂`) — двухлучевой волновой осциллограф с фазовым сдвигом $\Delta\varphi$ и режимами усиления/гашения.
 
-## Быстрый старт (локально)
-
-Требуется **Node.js >= 20**.
-
-1. Установите зависимости:
-   ```bash
-   npm run install:all
-   ```
-
-2. (Опционально) Для реального Gemini API создайте `server/.env` на основе `.env.example`:
-   ```env
-   GEMINI_API_KEY=ваш_ключ_gemini
-   GEMINI_MODEL=gemini-3.8-flash
-   PORT=5000
-   CLIENT_URL=http://localhost:5173
-   ```
-   > Без `GEMINI_API_KEY` сервер автоматически и честно запускается в **DEMO MODE**.
-
-3. Запустите Backend и Frontend в двух терминалах:
-   ```bash
-   npm run dev:server
-   npm run dev:client
-   ```
-   Откройте в браузере `http://localhost:5173`.
+> **Chemistry Lab** (`LAB—02`) остаётся в статусе **Coming Soon** без фиктивных симуляций.
 
 ---
 
-## Тестирование и сборка
+## Ключевые особенности Phase 2
+
+- **Единый акцентный цвет `#315BE8`** для интерфейса, кнопок, навигации и контролов; `#EF8737` зарезервирован для физических явлений (тепло, векторы сил, активные точки графиков, предупреждения ПВО).
+- **Синхронизированный числовой ввод + слайдеры**: точное значение можно ввести вручную (`Enter` / `onBlur` с ограничением `min`/`max`).
+- **Guided Research (основной режим)**: 6-этапный цикл `Explore → Hypothesize → Experiment → Observe → Analyze → Conclude`, при этом `Free Exploration` и кнопка *«Объяснить происходящее»* доступны в любой момент.
+- **Человекочитаемые научные отчёты**: структурированные параметры с единицами измерения (без сырого JSON), сохранение в `localStorage` и печать в PDF.
+- **AI Lab Mentor**: `@google/genai` (Interactions API) + серверная проверка физики (`physicsVerifier.js`) + защита от prompt injection + честный **Demo Mode** без API-ключа.
+
+---
+
+## Быстрый старт и проверка
 
 ```bash
-# Продакшн-сборка клиента
-npm run build
+npm run install:all
+npm run dev:server   # Backend на http://localhost:5000 (DEMO MODE без GEMINI_API_KEY)
+npm run dev:client   # Frontend на http://localhost:5173
+```
 
-# Unit-тесты физики (client) + тесты безопасности и API наставника (server)
-npm test
+Сборка и тесты:
+```bash
+npm run build        # Production-сборка client/dist
+npm test             # 10 unit-тестов физики + 6 тестов API/безопасности
 ```
 
 ---
 
 ## Развёртывание (Vercel + Render)
 
-1. **Backend (Render)**:
-   - Подключите репозиторий, выберите Blueprint (`render.yaml`) или Web Service с `Root Directory = server`, `Build Command = npm install`, `Start Command = npm start`.
-   - Задайте переменные окружения: `GEMINI_API_KEY` (опционально), `GEMINI_MODEL=gemini-3.8-flash`, `CLIENT_URL=https://ваш-домен.vercel.app`.
-2. **Frontend (Vercel)**:
-   - Импортируйте репозиторий, выберите `Root Directory = client`, Build Command `npm run build`, Output Directory `dist` (`client/vercel.json` уже настроен для SPA-роутинга).
-   - Укажите переменную окружения `VITE_API_URL=https://ваш-бэкенд.onrender.com`.
+1. **Backend (Render)**: используйте `render.yaml` (`Root Directory = server`, `Build = npm install`, `Start = npm start`, `Health = /api/health`). Задайте `GEMINI_API_KEY` (опционально), `GEMINI_MODEL=gemini-3.8-flash` и `CLIENT_URL=https://ваш-фронтенд.vercel.app`.
+2. **Frontend (Vercel)**: `Root Directory = client` (`client/vercel.json` настроен для SPA), `Build = npm run build`, `Output = dist`. Задайте `VITE_API_URL=https://ваш-бэкенд.onrender.com`.
 
 ---
 
 ## Документация
 
-- [Архитектура системы](docs/ARCHITECTURE.md)
+- [Архитектура](docs/ARCHITECTURE.md)
 - [Руководство разработчика](docs/DEVELOPMENT.md)
-- [Поведение AI Lab Mentor и безопасность](docs/AI_BEHAVIOR.md)
-- [Сценарий демонстрации для жюри ITFest 2026](docs/DEMO_SCRIPT.md)
-
----
-
-## Атрибуция AI-инструментов
-
-В разработке прототипа применялись инструменты генеративного ИИ (**Google Antigravity** и **Gemini**) для проектирования архитектуры, генерации компонентов и тестирования; при этом физические вычисления выполняются детерминированным JavaScript-кодом без участия LLM.
+- [AI Lab Mentor и безопасность](docs/AI_BEHAVIOR.md)
+- [Сценарий демонстрации ITFest 2026](docs/DEMO_SCRIPT.md)

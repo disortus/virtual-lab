@@ -154,6 +154,17 @@ export function SeriesParallelStage({ state, onToggleCircuit, onSwitchTopology }
               stroke="#17212B"
               strokeWidth="3"
             />
+            {circuitClosed && i1 > 0
+              ? branch1Dots.map((pt, idx) => (
+                  <circle key={`b1-${idx}`} cx={pt.x} cy={pt.y} r="4" fill="#315BE8" stroke="#FFFFFF" strokeWidth="1" />
+                ))
+              : null}
+            {circuitClosed && i2 > 0
+              ? branch2Dots.map((pt, idx) => (
+                  <circle key={`b2-${idx}`} cx={pt.x} cy={pt.y} r="4" fill="#EF8737" stroke="#FFFFFF" strokeWidth="1" />
+                ))
+              : null}
+
             {/* Branch junction nodes */}
             <circle cx="220" cy="120" r="4.5" fill="#17212B" />
             <circle cx="460" cy="181" r="4.5" fill="#17212B" />
@@ -181,17 +192,6 @@ export function SeriesParallelStage({ state, onToggleCircuit, onSwitchTopology }
                 I₂ = {i2} А · U₂ = {v2} В
               </text>
             </g>
-
-            {circuitClosed && i1 > 0
-              ? branch1Dots.map((pt, idx) => (
-                  <circle key={`b1-${idx}`} cx={pt.x} cy={pt.y} r="4" fill="#315BE8" stroke="#FFFFFF" strokeWidth="1" />
-                ))
-              : null}
-            {circuitClosed && i2 > 0
-              ? branch2Dots.map((pt, idx) => (
-                  <circle key={`b2-${idx}`} cx={pt.x} cy={pt.y} r="4" fill="#EF8737" stroke="#FFFFFF" strokeWidth="1" />
-                ))
-              : null}
           </g>
         )}
 

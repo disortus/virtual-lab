@@ -135,7 +135,7 @@ export function RefractionStage({ state }) {
         <g transform={`translate(${incX}, ${incY}) rotate(${-incidentAngle})`}>
           <rect x="-7" y="-12" width="14" height="20" rx="2" fill="#17212B" stroke="#EF8737" strokeWidth="1.5" />
         </g>
-        <text x={Math.max(12, incX - 14)} y={Math.max(22, incY - 12)} textAnchor="end" fontSize="11.5" fontFamily="IBM Plex Mono" fill="#B55610" fontWeight="700">
+        <text x={incX + 14} y={Math.max(24, incY - 4)} textAnchor="start" fontSize="11.5" fontFamily="IBM Plex Mono" fill="#B55610" fontWeight="700">
           θ₁ = {incidentAngle}°
         </text>
 

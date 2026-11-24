@@ -1,30 +1,30 @@
-# Архитектура Virtual Science Lab
+# Архитектура Virtual Science Lab (Phase 2)
 
-## Главный архитектурный принцип
+## Главный принцип
 
 **Simulation Engine полностью отделён от AI Learning Engine.** ИИ никогда не вычисляет физические величины и не подменяет математическую модель.
 
 ```text
-User Interaction (ползунки, ключ цепи, запуск)
+User Interaction (слайдеры, ручной ввод, переключатели)
        │
        ▼
 Simulation Engine (client/src/simulations/*/model.js)
-       │ — чистый JS, граничные ограничения, защита от NaN/Infinity
+       │ — 8 детерминированных моделей, граничные ограничения, защита от NaN/Infinity
        ▼
-Calculated Results ──► SVG-стенд + Цифровые приборы + Chart.js
+Calculated Results ──► SVG/Canvas-стенд + Приборы + Chart.js
        │
-       ▼ (отправка только параметров и действий)
+       ▼ (параметры, гипотеза, история замеров)
 Backend API (/api/mentor/*)
        │
-       ├──► physicsVerifier.js (повторный серверный расчёт истинных значений)
-       ├──► mentorValidator.js (валидация схемы, лимиты, prompt-injection фильтр)
+       ├──► physicsVerifier.js (пересчёт всех 8 экспериментов на сервере)
+       ├──► mentorValidator.js (валидация, лимиты, prompt-injection фильтр)
        └──► geminiService.js ──► Gemini API (@google/genai) или Demo Mode
 ```
 
-## Структура модулей
+## Разделы и модули
 
-- `client/src/simulations/` — детерминированные математические модели, конфигурации, SVG-стенды и unit-тесты (`simulations.test.js`).
-- `client/src/features/research/` — 6-шаговый цикл `GuidedWorkflow.jsx`.
-- `client/src/pages/` — Landing, Laboratories (Physics + Chemistry Coming Soon), PhysicsLab, ExperimentWorkspace, Reports, ReportDetail.
-- `client/src/services/` — `mentorApi.js` (HTTP-клиент + честный offline-fallback при недоступности сервера) и `reportStorage.js` (`localStorage`).
-- `server/src/` — Express API с CORS, rate limiting (`express-rate-limit`), системным промптом на сервере (`prompts/mentorSystemPrompt.js`), серверной проверкой физики (`services/physicsVerifier.js`) и демонстрационным движком (`services/demoMentorService.js`).
+- `client/src/simulations/` — 8 экспериментов (`ohms-law`, `free-fall`, `projectile-motion`, `refraction`, `series-parallel`, `newtons-second-law`, `ideal-gas`, `wave-interference`), объединённых в `index.js`.
+- `client/src/components/ui/RangeSlider.jsx` — нативный `<input type="range">`, синхронизированный с ручным `<input type="number">` (`Enter` / `onBlur` + clamping).
+- `client/src/utils/parameterFormatter.js` — словарь человекочитаемых названий, символов и единиц измерения для научных отчётов.
+- `client/src/pages/` — Landing, Laboratories (`Physics Lab` Available / `Chemistry Lab` Coming Soon), PhysicsLab (5 научных направлений), ExperimentWorkspace (Guided по умолчанию + Free), Reports & ReportDetail.
+- `server/src/` — Express API с CORS, rate limiting, серверным системным промптом, серверной верификацией физики для всех 8 экспериментов и `demoMentorService.js`.
