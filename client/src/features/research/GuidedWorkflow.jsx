@@ -1,5 +1,4 @@
 import { useId } from 'react';
-import { MeasurementsTable } from '../../components/experiments/MeasurementsTable.jsx';
 
 const PHASES = [
   { id: 'explore', num: '01', label: 'Изучение' },
@@ -196,29 +195,31 @@ export function GuidedWorkflow({
         {research.phase === 'observe' ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
             {firstRun && lastRun ? (
-              <div className="alert alert--warning">
-                <strong>Сравнение базового замера #1 и последнего замера #{research.measurements.length}:</strong>{' '}
-                {experiment.measurementColumns.map((col) => {
-                  const v1 = firstRun.results?.[col.key] ?? firstRun.parameters?.[col.key];
-                  const v2 = lastRun.results?.[col.key] ?? lastRun.parameters?.[col.key];
-                  const diff =
-                    typeof v1 === 'number' && typeof v2 === 'number'
-                      ? ` (${v2 - v1 >= 0 ? '+' : ''}${Math.round((v2 - v1) * 1000) / 1000})`
-                      : '';
-                  return (
-                    <span key={col.key} className="mono" style={{ display: 'inline-block', marginRight: '0.85rem' }}>
-                      {col.label}: {v1 ?? 'ПВО'} → {v2 ?? 'ПВО'}
-                      {diff}
-                    </span>
-                  );
-                })}
+              <div className="alert alert--info">
+                <strong>Сравнение базового замера #1 и последнего замера #{research.measurements.length}:</strong>
+                <div style={{ marginTop: '0.45rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem 1rem' }}>
+                  {experiment.measurementColumns.map((col) => {
+                    const v1 = firstRun.results?.[col.key] ?? firstRun.parameters?.[col.key];
+                    const v2 = lastRun.results?.[col.key] ?? lastRun.parameters?.[col.key];
+                    const diff =
+                      typeof v1 === 'number' && typeof v2 === 'number'
+                        ? ` (${v2 - v1 >= 0 ? '+' : ''}${Math.round((v2 - v1) * 1000) / 1000})`
+                        : '';
+                    return (
+                      <span key={col.key} className="mono" style={{ fontSize: '0.84rem' }}>
+                        {col.label}: {v1 ?? 'ПВО'} → {v2 ?? 'ПВО'}
+                        {diff}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
             ) : null}
 
-            <MeasurementsTable
-              columns={experiment.measurementColumns}
-              measurements={research.measurements}
-            />
+            <p style={{ fontSize: '0.88rem', color: 'var(--ink-secondary)' }}>
+              Полная таблица всех {research.measurements.length} замеров и графики доступны в аналитической области
+              ниже под стендом. Проверьте, подтверждают ли числа вашу гипотезу.
+            </p>
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <button type="button" className="btn" onClick={() => onPhaseChange('experiment')}>
@@ -289,7 +290,7 @@ export function GuidedWorkflow({
               </button>
               <button
                 type="button"
-                className="btn btn--orange"
+                className="btn btn--primary"
                 disabled={!hasConclusion}
                 onClick={onGenerateReport}
               >

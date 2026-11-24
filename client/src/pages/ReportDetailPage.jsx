@@ -2,6 +2,7 @@ import { useEffect, useId, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getReportById, updateReportConclusion } from '../services/reportStorage.js';
 import { MeasurementsTable } from '../components/experiments/MeasurementsTable.jsx';
+import { formatReportParameters } from '../utils/parameterFormatter.js';
 
 export function ReportDetailPage() {
   const { reportId } = useParams();
@@ -108,23 +109,22 @@ export function ReportDetailPage() {
           </section>
 
           <section>
-            <h2 className="eyebrow" style={{ marginBottom: '0.3rem' }}>
+            <h2 className="eyebrow" style={{ marginBottom: '0.45rem' }}>
               3. Параметры эксперимента (Experimental Parameters)
             </h2>
-            <pre
-              className="mono"
-              style={{
-                margin: 0,
-                padding: '0.65rem 0.85rem',
-                background: 'var(--bg-instrument)',
-                border: '1px solid var(--border-hairline)',
-                borderRadius: '2px',
-                fontSize: '0.82rem',
-                overflowX: 'auto',
-              }}
-            >
-              {JSON.stringify(report.parameters, null, 2)}
-            </pre>
+            <dl className="param-dl">
+              {formatReportParameters(report.parameters).map((item) => (
+                <div key={item.key} className="param-dl__item">
+                  <dt className="param-dl__term">
+                    {item.label}{' '}
+                    <span className="mono" style={{ color: 'var(--ink-muted)' }}>
+                      ({item.symbol})
+                    </span>
+                  </dt>
+                  <dd className="param-dl__desc">{item.formattedValue}</dd>
+                </div>
+              ))}
+            </dl>
           </section>
 
           <section>

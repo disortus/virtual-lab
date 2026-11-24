@@ -188,7 +188,7 @@ export function OhmsLawStage({ state, onToggleCircuit }) {
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
         <button
           type="button"
-          className={`btn btn--sm ${circuitClosed ? 'btn--primary' : 'btn--orange'}`}
+          className={`btn btn--sm ${circuitClosed ? 'btn--ink' : 'btn--primary'}`}
           onClick={onToggleCircuit}
         >
           {circuitClosed ? 'Разомкнуть ключ' : 'Замкнуть ключ'}

@@ -114,7 +114,7 @@ input[type='range'].lab-slider {
   --slider-thumb-radius: 2px;
   --slider-track-color: var(--border-hairline);
   --slider-fill-color: var(--accent-blue);
-  --slider-thumb-color: var(--ink-primary);
+  --slider-thumb-color: var(--accent-blue);
   --slider-direction: to right;
 
   --attr-min: 0;

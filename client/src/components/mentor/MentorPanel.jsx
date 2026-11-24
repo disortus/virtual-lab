@@ -162,7 +162,7 @@ export function MentorPanel({
       >
         <button
           type="button"
-          className="btn btn--sm btn--orange"
+          className="btn btn--sm btn--primary"
           disabled={loading}
           onClick={() => onQuickAction('explain_current_state')}
         >

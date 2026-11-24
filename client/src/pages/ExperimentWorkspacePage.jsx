@@ -26,7 +26,7 @@ export function ExperimentWorkspacePage() {
   const navigate = useNavigate();
 
   const experiment = getExperimentById(experimentId);
-  const initialMode = searchParams.get('mode') === 'guided' ? 'guided' : 'free';
+  const initialMode = searchParams.get('mode') === 'free' ? 'free' : 'guided';
   const [mode, setMode] = useState(initialMode);
 
   const [params, setParams] = useState(() => (experiment ? { ...experiment.defaultParams } : {}));
@@ -378,50 +378,138 @@ export function ExperimentWorkspacePage() {
             />
           ) : null}
 
-          {/* Main Interactive Bench: Stage + Instrument Controls */}
-          <div className="workspace-bench">
-            <section className="panel" aria-label="Симуляция эксперимента">
-              <div className="panel__header">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span className="badge badge--blue">{experiment.formula}</span>
-                  <h2 className="panel__title">Интерактивный стенд</h2>
-                </div>
-                <button
-                  type="button"
-                  className="btn btn--orange btn--sm"
-                  onClick={handleExplainCurrent}
-                  disabled={mentorLoading}
-                >
-                  Объяснить происходящее
-                </button>
+          {/* Full-width Interactive Simulation Stage */}
+          <section className="panel" aria-label="Симуляция эксперимента">
+            <div className="panel__header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <span className="badge badge--blue">{experiment.formula}</span>
+                <h2 className="panel__title">Интерактивный стенд</h2>
               </div>
-              <div className="panel__body">
-                {experiment.id === 'ohms-law' ? (
-                  <OhmsLawStage
-                    state={computed}
-                    onToggleCircuit={() =>
-                      updateParam('circuitClosed', !params.circuitClosed, 'положение ключа')
-                    }
+              <button
+                type="button"
+                className="btn btn--primary btn--sm"
+                onClick={handleExplainCurrent}
+                disabled={mentorLoading}
+              >
+                Объяснить происходящее
+              </button>
+            </div>
+            <div className="panel__body">
+              {experiment.id === 'ohms-law' ? (
+                <OhmsLawStage
+                  state={computed}
+                  onToggleCircuit={() =>
+                    updateParam('circuitClosed', !params.circuitClosed, 'положение ключа')
+                  }
+                />
+              ) : null}
+
+              {experiment.id === 'free-fall' ? (
+                <FreeFallStage params={params} onLiveStateChange={setLiveKinematics} />
+              ) : null}
+
+              {experiment.id === 'projectile-motion' ? (
+                <ProjectileStage
+                  params={params}
+                  measurements={research.measurements}
+                  onLiveStateChange={setLiveKinematics}
+                />
+              ) : null}
+
+              {experiment.id === 'refraction' ? <RefractionStage state={computed} /> : null}
+            </div>
+          </section>
+
+          {/* Integrated Digital Meters Strip + Single Record Action */}
+          <section aria-label="Показания измерительных приборов" className="meters-strip">
+            <div className="meters-grid">
+              {experiment.id === 'ohms-law' ? (
+                <>
+                  <MeterReadout label="Сила тока" symbol="I" value={computed.current} unit="А" accent />
+                  <MeterReadout label="Напряжение" symbol="U" value={computed.voltage} unit="В" />
+                  <MeterReadout label="Сопротивление" symbol="R" value={computed.resistance} unit="Ом" />
+                  <MeterReadout label="Мощность" symbol="P" value={computed.power} unit="Вт" />
+                </>
+              ) : null}
+
+              {experiment.id === 'free-fall' ? (
+                <>
+                  <MeterReadout
+                    label="Полное время"
+                    symbol="t_полн"
+                    value={computed.totalTime}
+                    unit="с"
+                    accent
                   />
-                ) : null}
-
-                {experiment.id === 'free-fall' ? (
-                  <FreeFallStage params={params} onLiveStateChange={setLiveKinematics} />
-                ) : null}
-
-                {experiment.id === 'projectile-motion' ? (
-                  <ProjectileStage
-                    params={params}
-                    measurements={research.measurements}
-                    onLiveStateChange={setLiveKinematics}
+                  <MeterReadout
+                    label="Скорость удара"
+                    symbol="v_уд"
+                    value={computed.impactVelocity}
+                    unit="м/с"
                   />
-                ) : null}
+                  <MeterReadout
+                    label="Текущая высота"
+                    symbol="h(t)"
+                    value={liveKinematics ? liveKinematics.currentHeight : computed.height}
+                    unit="м"
+                  />
+                  <MeterReadout
+                    label="Текущая скорость"
+                    symbol="v(t)"
+                    value={liveKinematics ? liveKinematics.velocity : 0}
+                    unit="м/с"
+                  />
+                </>
+              ) : null}
 
-                {experiment.id === 'refraction' ? <RefractionStage state={computed} /> : null}
-              </div>
-            </section>
+              {experiment.id === 'projectile-motion' ? (
+                <>
+                  <MeterReadout label="Дальность полёта" symbol="L" value={computed.range} unit="м" accent />
+                  <MeterReadout label="Макс. высота" symbol="H" value={computed.maxHeight} unit="м" />
+                  <MeterReadout label="Время полёта" symbol="T" value={computed.flightTime} unit="с" />
+                  <MeterReadout
+                    label="Гориз. скорость"
+                    symbol="vx"
+                    value={computed.vx}
+                    unit="м/с"
+                  />
+                </>
+              ) : null}
 
-            {/* Instrument Control Panel */}
+              {experiment.id === 'refraction' ? (
+                <>
+                  <MeterReadout label="Угол падения" symbol="θ₁" value={computed.incidentAngle} unit="°" />
+                  <MeterReadout label="Угол отражения" symbol="θ_отр" value={computed.reflectedAngle} unit="°" />
+                  <MeterReadout
+                    label="Угол преломления"
+                    symbol="θ₂"
+                    value={computed.isTotalInternalReflection ? 'ПВО' : computed.refractedAngle}
+                    unit={computed.isTotalInternalReflection ? '' : '°'}
+                    accent
+                  />
+                  <MeterReadout
+                    label="Критич. угол"
+                    symbol="θ_кр"
+                    value={computed.criticalAngle}
+                    unit={computed.criticalAngle !== null ? '°' : ''}
+                  />
+                </>
+              ) : null}
+            </div>
+            <div className="meters-action">
+              <button
+                type="button"
+                className="btn btn--primary"
+                style={{ width: '100%', whiteSpace: 'nowrap' }}
+                onClick={handleRecordMeasurement}
+              >
+                Зафиксировать замер ({research.measurements.length})
+              </button>
+            </div>
+          </section>
+
+          {/* Parameters Deck + Live Scientific Chart */}
+          <div className="workspace-deck-grid">
             <section className="panel panel--muted" aria-label="Панель управления параметрами">
               <div className="panel__header">
                 <h2 className="panel__title">Параметры установки</h2>
@@ -605,99 +693,9 @@ export function ExperimentWorkspacePage() {
                     ))}
                   </div>
                 </div>
-
-                <div style={{ borderTop: '1px solid var(--border-hairline)', paddingTop: '0.75rem', display: 'flex', gap: '0.5rem' }}>
-                  <button
-                    type="button"
-                    className="btn btn--blue"
-                    style={{ width: '100%' }}
-                    onClick={handleRecordMeasurement}
-                  >
-                    Зафиксировать замер в журнале
-                  </button>
-                </div>
               </div>
             </section>
-          </div>
 
-          {/* Digital Meter Readouts */}
-          <section aria-label="Показания измерительных приборов">
-            {experiment.id === 'ohms-law' ? (
-              <div className="meters-grid">
-                <MeterReadout label="Сила тока" symbol="I" value={computed.current} unit="А" accent />
-                <MeterReadout label="Напряжение" symbol="U" value={computed.voltage} unit="В" />
-                <MeterReadout label="Сопротивление" symbol="R" value={computed.resistance} unit="Ом" />
-                <MeterReadout label="Мощность" symbol="P" value={computed.power} unit="Вт" />
-              </div>
-            ) : null}
-
-            {experiment.id === 'free-fall' ? (
-              <div className="meters-grid">
-                <MeterReadout
-                  label="Полное время"
-                  symbol="t_полн"
-                  value={computed.totalTime}
-                  unit="с"
-                  accent
-                />
-                <MeterReadout
-                  label="Скорость удара"
-                  symbol="v_уд"
-                  value={computed.impactVelocity}
-                  unit="м/с"
-                />
-                <MeterReadout
-                  label="Текущая высота"
-                  symbol="h(t)"
-                  value={liveKinematics ? liveKinematics.currentHeight : computed.height}
-                  unit="м"
-                />
-                <MeterReadout
-                  label="Текущая скорость"
-                  symbol="v(t)"
-                  value={liveKinematics ? liveKinematics.velocity : 0}
-                  unit="м/с"
-                />
-              </div>
-            ) : null}
-
-            {experiment.id === 'projectile-motion' ? (
-              <div className="meters-grid">
-                <MeterReadout label="Дальность полёта" symbol="L" value={computed.range} unit="м" accent />
-                <MeterReadout label="Макс. высота" symbol="H" value={computed.maxHeight} unit="м" />
-                <MeterReadout label="Время полёта" symbol="T" value={computed.flightTime} unit="с" />
-                <MeterReadout
-                  label="Гориз. скорость"
-                  symbol="vx"
-                  value={computed.vx}
-                  unit="м/с"
-                />
-              </div>
-            ) : null}
-
-            {experiment.id === 'refraction' ? (
-              <div className="meters-grid">
-                <MeterReadout label="Угол падения" symbol="θ₁" value={computed.incidentAngle} unit="°" />
-                <MeterReadout label="Угол отражения" symbol="θ_отр" value={computed.reflectedAngle} unit="°" />
-                <MeterReadout
-                  label="Угол преломления"
-                  symbol="θ₂"
-                  value={computed.isTotalInternalReflection ? 'ПВО' : computed.refractedAngle}
-                  unit={computed.isTotalInternalReflection ? '' : '°'}
-                  accent
-                />
-                <MeterReadout
-                  label="Критич. угол"
-                  symbol="θ_кр"
-                  value={computed.criticalAngle}
-                  unit={computed.criticalAngle !== null ? '°' : ''}
-                />
-              </div>
-            ) : null}
-          </section>
-
-          {/* Chart & Measurements Table */}
-          <div className="workspace-analytics-grid">
             <section className="panel" aria-label="График эксперимента">
               <div className="panel__header">
                 <h2 className="panel__title">Визуализация зависимости</h2>
@@ -706,21 +704,22 @@ export function ExperimentWorkspacePage() {
                 {chartProps ? <ScientificChart {...chartProps} /> : null}
               </div>
             </section>
-
-            <section className="panel" aria-label="Журнал наблюдений">
-              <div className="panel__header">
-                <h2 className="panel__title">Журнал измерений</h2>
-              </div>
-              <div className="panel__body">
-                <MeasurementsTable
-                  columns={experiment.measurementColumns}
-                  measurements={research.measurements}
-                  onRemove={removeMeasurement}
-                  onClear={clearMeasurements}
-                />
-              </div>
-            </section>
           </div>
+
+          {/* Measurements Log Table */}
+          <section className="panel" aria-label="Журнал наблюдений">
+            <div className="panel__header">
+              <h2 className="panel__title">Журнал измерений</h2>
+            </div>
+            <div className="panel__body">
+              <MeasurementsTable
+                columns={experiment.measurementColumns}
+                measurements={research.measurements}
+                onRemove={removeMeasurement}
+                onClear={clearMeasurements}
+              />
+            </div>
+          </section>
         </div>
 
         {/* Docked AI Lab Mentor */}
