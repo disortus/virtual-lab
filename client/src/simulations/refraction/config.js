@@ -17,6 +17,7 @@ export const refractionConfig = {
   formula: 'n₁·sin(θ₁) = n₂·sin(θ₂)',
   description:
     'Исследуйте закон Снеллиуса на границе двух прозрачных сред и найдите критический угол полного внутреннего отражения.',
+  quantities: ['θ₁ (°)', 'θ₂ (°)', 'θ_кр (°)', 'n₁, n₂'],
   defaultParams: {
     incidentAngle: REFRACTION_BOUNDS.incidentAngle.default,
     n1: REFRACTION_BOUNDS.n1.default,

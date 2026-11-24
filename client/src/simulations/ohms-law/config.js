@@ -3,13 +3,14 @@ import { OHMS_BOUNDS } from './model.js';
 export const ohmsLawConfig = {
   id: 'ohms-law',
   code: 'EXP—01',
-  branch: 'Электричество и электродинамика',
+  branch: 'Электричество и цепи',
   branchKey: 'electricity',
   title: 'Закон Ома для участка цепи',
   shortTitle: 'Закон Ома',
   formula: 'I = U / R',
   description:
     'Исследуйте, как сила тока и мощность зависят от напряжения источника и сопротивления резистора в замкнутой цепи.',
+  quantities: ['I (А)', 'U (В)', 'R (Ом)', 'P (Вт)'],
   defaultParams: {
     voltage: OHMS_BOUNDS.voltage.default,
     resistance: OHMS_BOUNDS.resistance.default,

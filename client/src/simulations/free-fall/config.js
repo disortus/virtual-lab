@@ -3,13 +3,14 @@ import { FREE_FALL_BOUNDS } from './model.js';
 export const freeFallConfig = {
   id: 'free-fall',
   code: 'EXP—02',
-  branch: 'Механика и кинематика',
+  branch: 'Механика и движение',
   branchKey: 'mechanics',
   title: 'Свободное падение тела',
   shortTitle: 'Свободное падение',
   formula: 's = g·t² / 2',
   description:
     'Изучите равноускоренное движение тела в поле тяжести без сопротивления воздуха и сравните падение на разных планетах.',
+  quantities: ['h (м)', 'g (м/с²)', 't (с)', 'v (м/с)'],
   defaultParams: {
     height: FREE_FALL_BOUNDS.height.default,
     gravity: FREE_FALL_BOUNDS.gravity.default,

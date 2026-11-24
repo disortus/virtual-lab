@@ -53,7 +53,7 @@ export function LandingPage() {
                 <ArrowRightIcon />
               </Link>
               <Link to="/labs/physics" className="btn">
-                Все эксперименты (4)
+                Все эксперименты (8)
               </Link>
               <Link to="/labs" className="btn">
                 Каталог лабораторий
@@ -232,8 +232,8 @@ export function LandingPage() {
             }}
           >
             <div>
-              <span className="eyebrow">ДОСТУПНО В BETA · PHYSICS LAB</span>
-              <h2 style={{ fontSize: 'var(--text-2xl)', marginTop: '0.25rem' }}>Четыре интерактивных эксперимента</h2>
+              <span className="eyebrow">ДОСТУПНО В BETA · PHYSICS LAB · 5 НАПРАВЛЕНИЙ</span>
+              <h2 style={{ fontSize: 'var(--text-2xl)', marginTop: '0.25rem' }}>Восемь интерактивных экспериментов</h2>
             </div>
             <Link to="/labs" className="btn">
               Все лаборатории (Physics &amp; Chemistry)

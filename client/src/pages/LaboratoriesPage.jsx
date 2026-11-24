@@ -12,9 +12,9 @@ export function LaboratoriesPage() {
       <div style={{ borderBottom: '1px solid var(--border-strong)', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
         <span className="eyebrow">LABORATORIES DIRECTORY</span>
         <h1 style={{ fontSize: 'var(--text-2xl)', marginTop: '0.25rem' }}>Научные лаборатории</h1>
-        <p style={{ color: 'var(--ink-secondary)', maxWidth: '60ch', marginTop: '0.4rem' }}>
-          Выберите направление для проведения экспериментов. В Beta-версии полностью реализована Physics Lab;
-          Chemistry Lab готовится к следующему этапу развития платформы.
+        <p style={{ color: 'var(--ink-secondary)', maxWidth: '62ch', marginTop: '0.4rem' }}>
+          Выберите направление для проведения экспериментов. В Beta-версии полностью реализована Physics Lab с
+          восемью установками по пяти разделам физики; Chemistry Lab готовится к следующему этапу развития платформы.
         </p>
       </div>
 
@@ -23,19 +23,20 @@ export function LaboratoriesPage() {
           <div>
             <div className="panel__header">
               <span className="eyebrow">LAB—01 · ФИЗИКА</span>
-              <span className="badge badge--live">AVAILABLE</span>
+              <span className="badge badge--live">AVAILABLE · 8 ЭКСПЕРИМЕНТОВ</span>
             </div>
             <div className="panel__body" style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
               <h2 style={{ fontSize: '1.45rem' }}>Physics Lab</h2>
               <p style={{ color: 'var(--ink-secondary)' }}>
-                Четыре интерактивные установки по электродинамике, кинематике, баллистике и геометрической оптике с
-                графиками в реальном времени, научными отчётами и AI Lab Mentor.
+                Восемь интерактивных установок по пяти разделам физики с числовыми контролами, графиками в реальном
+                времени, циклом Guided Research, научными отчётами и AI Lab Mentor.
               </p>
               <ul style={{ margin: 0, paddingLeft: '1.15rem', fontSize: '0.9rem' }}>
-                <li>EXP—01: Закон Ома для участка цепи</li>
-                <li>EXP—02: Свободное падение тела</li>
-                <li>EXP—03: Движение тела под углом к горизонту</li>
-                <li>EXP—04: Преломление света и полное внутреннее отражение</li>
+                <li>Mechanics &amp; Motion: Свободное падение, Баллистика, Второй закон Ньютона</li>
+                <li>Electricity &amp; Circuits: Закон Ома, Последовательное и параллельное соединение</li>
+                <li>Optics: Преломление света и полное внутреннее отражение</li>
+                <li>Thermodynamics: Уравнение идеального газа (PV = nRT)</li>
+                <li>Waves &amp; Oscillations: Интерференция и суперпозиция волн</li>
               </ul>
             </div>
           </div>

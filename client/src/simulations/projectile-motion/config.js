@@ -3,13 +3,14 @@ import { PROJECTILE_BOUNDS } from './model.js';
 export const projectileMotionConfig = {
   id: 'projectile-motion',
   code: 'EXP—03',
-  branch: 'Механика и динамика',
+  branch: 'Механика и движение',
   branchKey: 'mechanics',
   title: 'Движение тела под углом к горизонту',
   shortTitle: 'Баллистика',
   formula: 'L = v₀²·sin(2α) / g',
   description:
     'Разложите движение снаряда на горизонтальную и вертикальную составляющие и найдите угол максимальной дальности.',
+  quantities: ['L (м)', 'H (м)', 'T (с)', 'vx, vy (м/с)'],
   defaultParams: {
     velocity: PROJECTILE_BOUNDS.velocity.default,
     angle: PROJECTILE_BOUNDS.angle.default,
