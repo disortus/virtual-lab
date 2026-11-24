@@ -59,14 +59,13 @@ export function ProjectileStage({ params, measurements = [], onLiveStateChange }
     setElapsedTime(0);
   };
 
-  // Auto-scale coordinate frame based on current + recorded launches
-  const maxX = Math.max(20, full.range * 1.12, ...measurements.map((m) => (m.results?.range || 0) * 1.1));
-  const maxY = Math.max(10, full.maxHeight * 1.28, ...measurements.map((m) => (m.results?.maxHeight || 0) * 1.25));
+  const maxX = Math.max(25, full.range * 1.15, ...measurements.map((m) => (m.results?.range || 0) * 1.12));
+  const maxY = Math.max(12, full.maxHeight * 1.32, ...measurements.map((m) => (m.results?.maxHeight || 0) * 1.28));
 
-  const left = 56;
-  const right = 605;
-  const bottom = 306;
-  const top = 36;
+  const left = 58;
+  const right = 618;
+  const bottom = 304;
+  const top = 34;
   const toSvgX = (x) => left + (x / maxX) * (right - left);
   const toSvgY = (y) => bottom - (y / maxY) * (bottom - top);
 
@@ -74,22 +73,39 @@ export function ProjectileStage({ params, measurements = [], onLiveStateChange }
     .map((pt, i) => `${i === 0 ? 'M' : 'L'} ${toSvgX(pt.x).toFixed(1)} ${toSvgY(pt.y).toFixed(1)}`)
     .join(' ');
 
-  const barrelLen = 30;
   const rad = (params.angle * Math.PI) / 180;
+  const barrelLen = 34;
   const barrelX = left + Math.cos(rad) * barrelLen;
   const barrelY = bottom - Math.sin(rad) * barrelLen;
+
+  // Initial velocity decomposition vectors at launch
+  const vScale = 56 / Math.max(1, params.velocity);
+  const v0EndX = left + full.vx * vScale;
+  const v0EndY = bottom - full.vy0 * vScale;
+
+  // Live velocity vectors on projectile
+  const liveScale = 42 / Math.max(1, params.velocity);
+  const liveVxEnd = toSvgX(live.x) + live.vx * liveScale;
+  const liveVyEnd = toSvgY(live.y) - live.vy * liveScale;
 
   const projX = toSvgX(live.x);
   const projY = toSvgY(live.y);
   const apexX = toSvgX(full.range / 2);
   const apexY = toSvgY(full.maxHeight);
 
+  // Angle arc near launcher
+  const arcR = 26;
+  const arcX = left + Math.cos(rad) * arcR;
+  const arcY = bottom - Math.sin(rad) * arcR;
+
+  const gridFractions = [0.25, 0.5, 0.75, 1];
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
       <svg
-        viewBox="0 0 640 360"
+        viewBox="0 0 660 365"
         role="img"
-        aria-label={`Траектория броска под углом ${params.angle}° со скоростью ${params.velocity} м/с`}
+        aria-label={`Баллистическая траектория под углом ${params.angle}° со скоростью ${params.velocity} м/с`}
         className="grid-surface"
         style={{
           width: '100%',
@@ -98,18 +114,29 @@ export function ProjectileStage({ params, measurements = [], onLiveStateChange }
           borderRadius: '2px',
         }}
       >
-        <title>Баллистическая траектория</title>
+        <title>Баллистический стенд с разложением вектора скорости</title>
 
-        {/* Axes */}
-        <line x1={left} y1={top} x2={left} y2={bottom} stroke="#17212B" strokeWidth="1.8" />
-        <line x1="32" y1={bottom} x2="620" y2={bottom} stroke="#17212B" strokeWidth="2.5" />
+        {/* Coordinate Grid & Tick Values */}
+        {gridFractions.map((f) => {
+          const gx = toSvgX(maxX * f);
+          const gy = toSvgY(maxY * f);
+          return (
+            <g key={f}>
+              <line x1={gx} y1={top} x2={gx} y2={bottom} stroke="rgba(23,33,43,0.1)" strokeDasharray="3 3" />
+              <text x={gx} y={bottom + 16} textAnchor="middle" fontSize="10" fontFamily="IBM Plex Mono" fill="#505862">
+                {Math.round(maxX * f)} м
+              </text>
+              <line x1={left} y1={gy} x2={right} y2={gy} stroke="rgba(23,33,43,0.1)" strokeDasharray="3 3" />
+              <text x={left - 8} y={gy + 3} textAnchor="end" fontSize="10" fontFamily="IBM Plex Mono" fill="#505862">
+                {Math.round(maxY * f)} м
+              </text>
+            </g>
+          );
+        })}
 
-        <text x={left - 8} y={top + 8} textAnchor="end" fontSize="11" fontFamily="IBM Plex Mono" fill="#505862">
-          {Math.round(maxY)} м
-        </text>
-        <text x={right} y={bottom + 18} textAnchor="end" fontSize="11" fontFamily="IBM Plex Mono" fill="#505862">
-          {Math.round(maxX)} м
-        </text>
+        {/* Main Axes */}
+        <line x1={left} y1={top - 8} x2={left} y2={bottom} stroke="#17212B" strokeWidth="2" />
+        <line x1="36" y1={bottom} x2="634" y2={bottom} stroke="#17212B" strokeWidth="2.4" />
 
         {/* Ghost trajectories from recorded runs */}
         {measurements.slice(-3).map((m, idx) => {
@@ -118,51 +145,70 @@ export function ProjectileStage({ params, measurements = [], onLiveStateChange }
             .map((pt, i) => `${i === 0 ? 'M' : 'L'} ${toSvgX(pt.x).toFixed(1)} ${toSvgY(pt.y).toFixed(1)}`)
             .join(' ');
           return (
-            <path
-              key={m.id || idx}
-              d={gPath}
-              fill="none"
-              stroke="rgba(116, 123, 131, 0.55)"
-              strokeWidth="1.5"
-              strokeDasharray="4 4"
-            />
+            <g key={m.id || idx}>
+              <path d={gPath} fill="none" stroke="rgba(116,123,131,0.6)" strokeWidth="1.5" strokeDasharray="4 4" />
+              <circle cx={toSvgX(gCurve.range)} cy={bottom} r="3.5" fill="#747B83" />
+            </g>
           );
         })}
 
-        {/* Predicted active trajectory */}
-        <path d={mainPath} fill="none" stroke="#315BE8" strokeWidth="2.2" strokeDasharray="5 4" />
+        {/* Current Predicted Trajectory */}
+        <path d={mainPath} fill="none" stroke="#315BE8" strokeWidth="2.4" strokeDasharray="6 4" />
 
-        {/* Apex marker */}
-        <line x1={apexX} y1={apexY} x2={apexX} y2={bottom} stroke="rgba(239,135,55,0.45)" strokeDasharray="3 3" />
-        <circle cx={apexX} cy={apexY} r="3.5" fill="#EF8737" />
-        <text x={apexX} y={Math.max(20, apexY - 8)} textAnchor="middle" fontSize="11" fontFamily="IBM Plex Mono" fill="#B55610" fontWeight="600">
+        {/* Apex Callout */}
+        <line x1={apexX} y1={apexY} x2={apexX} y2={bottom} stroke="rgba(239,135,55,0.5)" strokeDasharray="3 3" />
+        <circle cx={apexX} cy={apexY} r="4" fill="#EF8737" />
+        <text x={apexX} y={Math.max(18, apexY - 8)} textAnchor="middle" fontSize="11" fontFamily="IBM Plex Mono" fill="#B55610" fontWeight="600">
           H = {full.maxHeight} м
         </text>
 
-        {/* Range marker */}
+        {/* Range Callout */}
         <circle cx={toSvgX(full.range)} cy={bottom} r="4.5" fill="#17212B" />
         <text x={toSvgX(full.range)} y={bottom + 32} textAnchor="middle" fontSize="11" fontFamily="IBM Plex Mono" fill="#17212B" fontWeight="600">
           L = {full.range} м
         </text>
 
-        {/* Launcher */}
+        {/* Launcher Base, Angle Arc & Initial Decomposition */}
+        <rect x={left - 12} y={bottom - 4} width="24" height="8" fill="#17212B" />
+        <path d={`M ${left + arcR} ${bottom} A ${arcR} ${arcR} 0 0 0 ${arcX} ${arcY}`} fill="rgba(49,91,232,0.14)" stroke="#315BE8" strokeWidth="1.4" />
+        <text x={left + arcR + 6} y={bottom - 8} fontSize="10.5" fontFamily="IBM Plex Mono" fill="#315BE8" fontWeight="600">
+          α = {params.angle}°
+        </text>
+
+        {/* Launch v_x & v_y dashed components */}
+        <line x1={left} y1={bottom} x2={v0EndX} y2={bottom} stroke="#505862" strokeWidth="1.5" strokeDasharray="2 2" />
+        <line x1={v0EndX} y1={bottom} x2={v0EndX} y2={v0EndY} stroke="#505862" strokeWidth="1.5" strokeDasharray="2 2" />
         <line x1={left} y1={bottom} x2={barrelX} y2={barrelY} stroke="#17212B" strokeWidth="7" strokeLinecap="round" />
-        <circle cx={left} cy={bottom} r="7" fill="#EF8737" stroke="#17212B" strokeWidth="2" />
+        <circle cx={left} cy={bottom} r="6.5" fill="#EF8737" stroke="#17212B" strokeWidth="2" />
 
-        {/* Active Projectile */}
-        <circle cx={projX} cy={projY} r="8" fill="#EF8737" stroke="#17212B" strokeWidth="2" />
+        {/* Live Projectile & Velocity Vector Decomposition */}
+        {!live.isLanded && elapsedTime > 0 ? (
+          <g>
+            {/* vx vector */}
+            <line x1={projX} y1={projY} x2={liveVxEnd} y2={projY} stroke="#315BE8" strokeWidth="1.8" strokeDasharray="3 2" />
+            {/* vy vector */}
+            <line x1={projX} y1={projY} x2={projX} y2={liveVyEnd} stroke="#EF8737" strokeWidth="1.8" strokeDasharray="3 2" />
+            {/* resultant v vector */}
+            <line x1={projX} y1={projY} x2={liveVxEnd} y2={liveVyEnd} stroke="#17212B" strokeWidth="2.2" />
+          </g>
+        ) : null}
+        <circle cx={projX} cy={projY} r="7.5" fill="#EF8737" stroke="#17212B" strokeWidth="2" />
 
-        {/* Telemetry box */}
-        <g transform="translate(430, 16)">
-          <rect width="194" height="72" rx="2" fill="#FFFFFF" stroke="#17212B" strokeWidth="1.2" />
-          <text x="10" y="20" fontSize="11" fontFamily="IBM Plex Mono" fill="#505862">
-            ПОЛЁТ: {live.time} / {full.flightTime} с
+        {/* Telemetry Box */}
+        <g transform="translate(442, 16)">
+          <rect width="204" height="88" rx="2" fill="#FFFFFF" stroke="#17212B" strokeWidth="1.3" />
+          <rect width="204" height="22" fill="#17212B" />
+          <text x="10" y="15" fontSize="10" fontFamily="IBM Plex Mono" fill="#FFFFFF" fontWeight="600">
+            ВЕКТОР СКОРОСТИ v(t)
           </text>
-          <text x="10" y="40" fontSize="11.5" fontFamily="IBM Plex Mono" fill="#17212B">
-            x = {live.x} м · y = {live.y} м
+          <text x="10" y="38" fontSize="11" fontFamily="IBM Plex Mono" fill="#17212B">
+            t = {live.time} / {full.flightTime} с
           </text>
-          <text x="10" y="59" fontSize="11.5" fontFamily="IBM Plex Mono" fill="#315BE8" fontWeight="600">
-            vx = {live.vx} · vy = {live.vy} м/с
+          <text x="10" y="56" fontSize="11" fontFamily="IBM Plex Mono" fill="#315BE8" fontWeight="600">
+            vx = {live.vx} м/с · vy = {live.vy} м/с
+          </text>
+          <text x="10" y="75" fontSize="11" fontFamily="IBM Plex Mono" fill="#17212B" fontWeight="600">
+            |v| = {live.speed} м/с
           </text>
         </g>
       </svg>
@@ -178,8 +224,8 @@ export function ProjectileStage({ params, measurements = [], onLiveStateChange }
             Сброс
           </button>
         </div>
-        <span className="mono" style={{ fontSize: '0.78rem', color: 'var(--ink-secondary)' }}>
-          Серый пунктир — прошлые зафиксированные броски
+        <span className="mono" style={{ fontSize: '0.76rem', color: 'var(--ink-secondary)' }}>
+          Во время полёта показаны vx (синий), vy (оранжевый) и результирующий v (чёрный)
         </span>
       </div>
     </div>
