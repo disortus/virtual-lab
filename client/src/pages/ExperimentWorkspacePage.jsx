@@ -6,10 +6,14 @@ import { FREE_FALL_BOUNDS, generateFreeFallSeries } from '../simulations/free-fa
 import { PROJECTILE_BOUNDS, generateProjectileTrajectory } from '../simulations/projectile-motion/model.js';
 import { REFRACTION_BOUNDS, generateRefractionCurve } from '../simulations/refraction/model.js';
 import { MEDIA_PRESETS } from '../simulations/refraction/config.js';
+import { SERIES_PARALLEL_BOUNDS, generateSeriesParallelSeries } from '../simulations/series-parallel/model.js';
+import { NEWTON_BOUNDS, generateNewtonChartSeries } from '../simulations/newtons-second-law/model.js';
 import { OhmsLawStage } from '../simulations/ohms-law/Stage.jsx';
 import { FreeFallStage } from '../simulations/free-fall/Stage.jsx';
 import { ProjectileStage } from '../simulations/projectile-motion/Stage.jsx';
 import { RefractionStage } from '../simulations/refraction/Stage.jsx';
+import { SeriesParallelStage } from '../simulations/series-parallel/Stage.jsx';
+import { NewtonsSecondLawStage } from '../simulations/newtons-second-law/Stage.jsx';
 import { RangeSlider } from '../components/ui/RangeSlider.jsx';
 import { MeterReadout } from '../components/ui/MeterReadout.jsx';
 import { ScientificChart } from '../components/charts/ScientificChart.jsx';
@@ -308,6 +312,37 @@ export function ExperimentWorkspacePage() {
           : []),
       ],
     };
+  } else if (experiment.id === 'series-parallel') {
+    const spSeries = generateSeriesParallelSeries(params);
+    chartProps = {
+      title: `Сравнение R_общ(R₂) при R₁ = ${spSeries.r1} Ом`,
+      xLabel: 'Сопротивление R₂ (Ом)',
+      yLabel: 'Общее сопротивление R_общ (Ом)',
+      caption: 'Последовательное соединение всегда увеличивает R_общ, параллельное — уменьшает ниже меньшего резистора.',
+      datasets: [
+        { label: 'Последовательно (R₁ + R₂)', data: spSeries.seriesPoints, color: '#EF8737' },
+        { label: 'Параллельно (R₁ || R₂)', data: spSeries.parallelPoints, color: '#315BE8' },
+      ],
+    };
+  } else if (experiment.id === 'newtons-second-law') {
+    const nSeries = generateNewtonChartSeries(params);
+    chartProps = {
+      title: `Зависимость a(F_тяги) при m = ${params.mass} кг и F_тр = ${params.frictionForce} Н`,
+      xLabel: 'Приложенная сила F_тяги (Н)',
+      yLabel: 'Ускорение a (м/с²)',
+      caption: 'До преодоления силы трения ускорение равно 0; далее рост линейный с наклоном 1/m.',
+      datasets: [
+        { label: 'Ускорение a(F)', data: nSeries.points, color: '#315BE8', fill: true },
+        {
+          label: 'Текущий режим',
+          data: [nSeries.operatingPoint],
+          color: '#EF8737',
+          fillColor: '#EF8737',
+          pointRadius: 6,
+          showLine: false,
+        },
+      ],
+    };
   }
 
   return (
@@ -417,6 +452,20 @@ export function ExperimentWorkspacePage() {
               ) : null}
 
               {experiment.id === 'refraction' ? <RefractionStage state={computed} /> : null}
+
+              {experiment.id === 'series-parallel' ? (
+                <SeriesParallelStage
+                  state={computed}
+                  onToggleCircuit={() =>
+                    updateParam('circuitClosed', !params.circuitClosed, 'положение ключа')
+                  }
+                  onSwitchTopology={(nextType) => updateParam('circuitType', nextType, 'схема соединения')}
+                />
+              ) : null}
+
+              {experiment.id === 'newtons-second-law' ? (
+                <NewtonsSecondLawStage params={params} onLiveStateChange={setLiveKinematics} />
+              ) : null}
             </div>
           </section>
 
@@ -492,6 +541,34 @@ export function ExperimentWorkspacePage() {
                     symbol="θ_кр"
                     value={computed.criticalAngle}
                     unit={computed.criticalAngle !== null ? '°' : ''}
+                  />
+                </>
+              ) : null}
+
+              {experiment.id === 'series-parallel' ? (
+                <>
+                  <MeterReadout label="Общее R" symbol="R_общ" value={computed.rTotal} unit="Ом" accent />
+                  <MeterReadout label="Общий ток" symbol="I_общ" value={computed.iTotal} unit="А" />
+                  <MeterReadout label="Ветвь 1 (I₁)" symbol="I₁" value={computed.i1} unit="А" />
+                  <MeterReadout label="Ветвь 2 (I₂)" symbol="I₂" value={computed.i2} unit="А" />
+                </>
+              ) : null}
+
+              {experiment.id === 'newtons-second-law' ? (
+                <>
+                  <MeterReadout label="Ускорение" symbol="a" value={computed.acceleration} unit="м/с²" accent />
+                  <MeterReadout label="Равнодействующая" symbol="F_рез" value={computed.netForce} unit="Н" />
+                  <MeterReadout
+                    label="Пройденный путь"
+                    symbol="s(t)"
+                    value={liveKinematics ? liveKinematics.displacement : 0}
+                    unit="м"
+                  />
+                  <MeterReadout
+                    label="Скорость"
+                    symbol="v(t)"
+                    value={liveKinematics ? liveKinematics.velocity : 0}
+                    unit="м/с"
                   />
                 </>
               ) : null}
@@ -673,6 +750,76 @@ export function ExperimentWorkspacePage() {
                         </button>
                       ))}
                     </div>
+                  </>
+                ) : null}
+
+                {experiment.id === 'series-parallel' ? (
+                  <>
+                    <RangeSlider
+                      label="Напряжение источника"
+                      symbol="U"
+                      unit="В"
+                      min={SERIES_PARALLEL_BOUNDS.voltage.min}
+                      max={SERIES_PARALLEL_BOUNDS.voltage.max}
+                      step={SERIES_PARALLEL_BOUNDS.voltage.step}
+                      value={params.voltage}
+                      onChange={(v) => updateParam('voltage', v, 'напряжение U')}
+                    />
+                    <RangeSlider
+                      label="Резистор R₁"
+                      symbol="R₁"
+                      unit="Ом"
+                      min={SERIES_PARALLEL_BOUNDS.r1.min}
+                      max={SERIES_PARALLEL_BOUNDS.r1.max}
+                      step={SERIES_PARALLEL_BOUNDS.r1.step}
+                      value={params.r1}
+                      onChange={(v) => updateParam('r1', v, 'сопротивление R₁')}
+                    />
+                    <RangeSlider
+                      label="Резистор R₂"
+                      symbol="R₂"
+                      unit="Ом"
+                      min={SERIES_PARALLEL_BOUNDS.r2.min}
+                      max={SERIES_PARALLEL_BOUNDS.r2.max}
+                      step={SERIES_PARALLEL_BOUNDS.r2.step}
+                      value={params.r2}
+                      onChange={(v) => updateParam('r2', v, 'сопротивление R₂')}
+                    />
+                  </>
+                ) : null}
+
+                {experiment.id === 'newtons-second-law' ? (
+                  <>
+                    <RangeSlider
+                      label="Масса тела"
+                      symbol="m"
+                      unit="кг"
+                      min={NEWTON_BOUNDS.mass.min}
+                      max={NEWTON_BOUNDS.mass.max}
+                      step={NEWTON_BOUNDS.mass.step}
+                      value={params.mass}
+                      onChange={(v) => updateParam('mass', v, 'масса m')}
+                    />
+                    <RangeSlider
+                      label="Приложенная сила"
+                      symbol="F_тяги"
+                      unit="Н"
+                      min={NEWTON_BOUNDS.appliedForce.min}
+                      max={NEWTON_BOUNDS.appliedForce.max}
+                      step={NEWTON_BOUNDS.appliedForce.step}
+                      value={params.appliedForce}
+                      onChange={(v) => updateParam('appliedForce', v, 'приложенная сила')}
+                    />
+                    <RangeSlider
+                      label="Сила трения"
+                      symbol="F_тр"
+                      unit="Н"
+                      min={NEWTON_BOUNDS.frictionForce.min}
+                      max={NEWTON_BOUNDS.frictionForce.max}
+                      step={NEWTON_BOUNDS.frictionForce.step}
+                      value={params.frictionForce}
+                      onChange={(v) => updateParam('frictionForce', v, 'сила трения')}
+                    />
                   </>
                 ) : null}
 

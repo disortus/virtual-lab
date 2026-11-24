@@ -6,24 +6,18 @@ import { calculateProjectile } from './projectile-motion/model.js';
 import { projectileMotionConfig } from './projectile-motion/config.js';
 import { calculateRefraction } from './refraction/model.js';
 import { refractionConfig } from './refraction/config.js';
+import { calculateSeriesParallel } from './series-parallel/model.js';
+import { seriesParallelConfig } from './series-parallel/config.js';
+import { calculateNewtonsSecondLaw } from './newtons-second-law/model.js';
+import { newtonsSecondLawConfig } from './newtons-second-law/config.js';
 
 export const EXPERIMENTS = {
-  'ohms-law': {
-    ...ohmsLawConfig,
-    calculate: calculateOhmsLaw,
-  },
-  'free-fall': {
-    ...freeFallConfig,
-    calculate: calculateFreeFall,
-  },
-  'projectile-motion': {
-    ...projectileMotionConfig,
-    calculate: calculateProjectile,
-  },
-  refraction: {
-    ...refractionConfig,
-    calculate: calculateRefraction,
-  },
+  'ohms-law': { ...ohmsLawConfig, calculate: calculateOhmsLaw },
+  'free-fall': { ...freeFallConfig, calculate: calculateFreeFall },
+  'projectile-motion': { ...projectileMotionConfig, calculate: calculateProjectile },
+  refraction: { ...refractionConfig, calculate: calculateRefraction },
+  'series-parallel': { ...seriesParallelConfig, calculate: calculateSeriesParallel },
+  'newtons-second-law': { ...newtonsSecondLawConfig, calculate: calculateNewtonsSecondLaw },
 };
 
 export const EXPERIMENT_LIST = Object.values(EXPERIMENTS);

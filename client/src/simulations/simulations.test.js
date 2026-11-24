@@ -5,6 +5,8 @@ import { calculateOhmsLaw, generateOhmsChartSeries } from './ohms-law/model.js';
 import { calculateFreeFall, generateFreeFallSeries } from './free-fall/model.js';
 import { calculateProjectile, generateProjectileTrajectory } from './projectile-motion/model.js';
 import { calculateRefraction, generateRefractionCurve } from './refraction/model.js';
+import { calculateSeriesParallel, generateSeriesParallelSeries } from './series-parallel/model.js';
+import { calculateNewtonsSecondLaw, generateNewtonChartSeries } from './newtons-second-law/model.js';
 import { computeExperimentState, EXPERIMENT_LIST } from './index.js';
 
 function assertNoBadNumbers(obj) {
@@ -15,12 +17,11 @@ function assertNoBadNumbers(obj) {
   }
 }
 
-test('Experiment registry contains all 4 required physics experiments', () => {
-  assert.equal(EXPERIMENT_LIST.length, 4);
-  assert.deepEqual(
-    EXPERIMENT_LIST.map((e) => e.id),
-    ['ohms-law', 'free-fall', 'projectile-motion', 'refraction']
-  );
+test('Experiment registry contains physics experiments including Series/Parallel and Newton 2nd Law', () => {
+  assert.ok(EXPERIMENT_LIST.length >= 6);
+  for (const id of ['ohms-law', 'free-fall', 'projectile-motion', 'refraction', 'series-parallel', 'newtons-second-law']) {
+    assert.ok(EXPERIMENT_LIST.some((e) => e.id === id), `Missing ${id}`);
+  }
 });
 
 test("Ohm's Law: calculates I = U/R, P = U*I, and handles open circuit", () => {
@@ -122,4 +123,49 @@ test('Unified computeExperimentState works for all experiments and rejects unkno
   const res = computeExperimentState('ohms-law', { voltage: 10, resistance: 10 });
   assert.equal(res.current, 1);
   assert.throws(() => computeExperimentState('quantum-warp', {}));
+});
+
+test('Series & Parallel Circuits: calculates R_total, branch currents, and open circuit', () => {
+  const series = calculateSeriesParallel({ circuitType: 'series', voltage: 12, r1: 20, r2: 40, circuitClosed: true });
+  assert.equal(series.rTotal, 60);
+  assert.equal(series.iTotal, 0.2);
+  assert.equal(series.v1, 4);
+  assert.equal(series.v2, 8);
+  assertNoBadNumbers(series);
+
+  const parallel = calculateSeriesParallel({ circuitType: 'parallel', voltage: 12, r1: 20, r2: 20, circuitClosed: true });
+  assert.equal(parallel.rTotal, 10);
+  assert.equal(parallel.iTotal, 1.2);
+  assert.equal(parallel.i1, 0.6);
+  assert.equal(parallel.i2, 0.6);
+  assertNoBadNumbers(parallel);
+
+  const open = calculateSeriesParallel({ circuitType: 'parallel', voltage: 12, r1: 20, r2: 20, circuitClosed: false });
+  assert.equal(open.iTotal, 0);
+
+  const spSeries = generateSeriesParallelSeries({ r1: 20, r2: 30 });
+  assert.equal(spSeries.seriesPoints.length, 50);
+  assert.equal(spSeries.parallelPoints.length, 50);
+});
+
+test("Newton's Second Law: calculates F_net, friction threshold, acceleration, and clamps negative mass", () => {
+  const moving = calculateNewtonsSecondLaw({ mass: 10, appliedForce: 60, frictionForce: 20, elapsedTime: 2 });
+  assert.equal(moving.netForce, 40);
+  assert.equal(moving.acceleration, 4);
+  assert.equal(moving.velocity, 8);
+  assert.equal(moving.displacement, 8);
+  assert.equal(moving.isMoving, true);
+  assertNoBadNumbers(moving);
+
+  const stuck = calculateNewtonsSecondLaw({ mass: 10, appliedForce: 15, frictionForce: 25 });
+  assert.equal(stuck.netForce, 0);
+  assert.equal(stuck.acceleration, 0);
+  assert.equal(stuck.isMoving, false);
+
+  const badMass = calculateNewtonsSecondLaw({ mass: -5, appliedForce: 50, frictionForce: 0 });
+  assert.equal(badMass.mass, 1);
+  assert.equal(badMass.acceleration, 50);
+
+  const nChart = generateNewtonChartSeries({ mass: 10, frictionForce: 20, appliedForce: 60 });
+  assert.equal(nChart.operatingPoint.y, 4);
 });

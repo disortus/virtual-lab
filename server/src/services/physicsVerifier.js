@@ -122,6 +122,45 @@ export const EXPERIMENT_SPECS = {
       };
     },
   },
+  'series-parallel': {
+    id: 'series-parallel',
+    title: 'Последовательное и параллельное соединение',
+    objective: 'Сравнить общее сопротивление, силу тока и падение напряжения в последовательной и параллельной цепях.',
+    units: { voltage: 'В', r1: 'Ом', r2: 'Ом', rTotal: 'Ом', iTotal: 'А', i1: 'А', i2: 'А', pTotal: 'Вт' },
+    compute(rawParams = {}) {
+      const circuitType = rawParams.circuitType === 'parallel' ? 'parallel' : 'series';
+      const voltage = round(sanitizeNumber(rawParams.voltage, 12, 1, 24), 2);
+      const r1 = round(sanitizeNumber(rawParams.r1, 20, 2, 100), 2);
+      const r2 = round(sanitizeNumber(rawParams.r2, 30, 2, 100), 2);
+      const circuitClosed = rawParams.circuitClosed !== undefined ? Boolean(rawParams.circuitClosed) : true;
+      const rTotal = circuitType === 'parallel' ? round((r1 * r2) / (r1 + r2), 3) : round(r1 + r2, 3);
+      const iTotal = circuitClosed ? round(voltage / rTotal, 4) : 0;
+      const i1 = !circuitClosed ? 0 : circuitType === 'parallel' ? round(voltage / r1, 4) : iTotal;
+      const i2 = !circuitClosed ? 0 : circuitType === 'parallel' ? round(voltage / r2, 4) : iTotal;
+      const pTotal = circuitClosed ? round(voltage * iTotal, 3) : 0;
+      return {
+        parameters: { circuitType, voltage, r1, r2, circuitClosed },
+        results: { rTotal, iTotal, i1, i2, pTotal },
+      };
+    },
+  },
+  'newtons-second-law': {
+    id: 'newtons-second-law',
+    title: 'Второй закон Ньютона (F = m·a)',
+    objective: 'Изучить связь приложенной силы, трения, массы тела и его ускорения.',
+    units: { mass: 'кг', appliedForce: 'Н', frictionForce: 'Н', netForce: 'Н', acceleration: 'м/с²' },
+    compute(rawParams = {}) {
+      const mass = round(sanitizeNumber(rawParams.mass, 10, 1, 50), 2);
+      const appliedForce = round(sanitizeNumber(rawParams.appliedForce, 60, 0, 200), 2);
+      const frictionForce = round(sanitizeNumber(rawParams.frictionForce, 20, 0, 100), 2);
+      const netForce = round(Math.max(0, appliedForce - frictionForce), 2);
+      const acceleration = round(netForce / mass, 3);
+      return {
+        parameters: { mass, appliedForce, frictionForce },
+        results: { netForce, acceleration, isMoving: netForce > 0 },
+      };
+    },
+  },
 };
 
 export function verifySimulationContext(experimentId, rawParams, rawMeasurements = []) {

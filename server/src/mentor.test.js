@@ -138,3 +138,38 @@ test('POST /api/mentor/analyze supports guided research analysis across experime
     server.close();
   }
 });
+
+test('POST /api/mentor/explain verifies Series/Parallel and Newton 2nd Law server-side', async () => {
+  const { server, baseUrl } = await startTestServer();
+  try {
+    const spRes = await fetch(`${baseUrl}/api/mentor/explain`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        experimentId: 'series-parallel',
+        mode: 'free',
+        parameters: { circuitType: 'parallel', voltage: 12, r1: 20, r2: 20, circuitClosed: true },
+      }),
+    });
+    assert.equal(spRes.status, 200);
+    const spJson = await spRes.json();
+    assert.equal(spJson.verifiedContext.results.rTotal, 10);
+    assert.equal(spJson.verifiedContext.results.iTotal, 1.2);
+
+    const nRes = await fetch(`${baseUrl}/api/mentor/explain`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        experimentId: 'newtons-second-law',
+        mode: 'free',
+        parameters: { mass: 10, appliedForce: 60, frictionForce: 20 },
+      }),
+    });
+    assert.equal(nRes.status, 200);
+    const nJson = await nRes.json();
+    assert.equal(nJson.verifiedContext.results.netForce, 40);
+    assert.equal(nJson.verifiedContext.results.acceleration, 4);
+  } finally {
+    server.close();
+  }
+});

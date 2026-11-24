@@ -176,6 +176,68 @@ function buildRefractionDemo(payload) {
   );
 }
 
+function buildSeriesParallelDemo(payload) {
+  const { parameters, results, measurements } = payload.verifiedContext;
+  const { circuitType, voltage, r1, r2, circuitClosed } = parameters;
+  const { rTotal, iTotal, i1, i2 } = results;
+  const schemeName = circuitType === 'parallel' ? 'параллельная' : 'последовательная';
+
+  if (!circuitClosed) {
+    return `Ключ в цепи разомкнут, поэтому при U = ${voltage} В общий ток I_общ = 0 А. Замкни ключ, чтобы сравнить ${schemeName} схему для R₁ = ${r1} Ом и R₂ = ${r2} Ом.`;
+  }
+  if (payload.endpointType === 'analyze' && payload.action === 'review_conclusion') {
+    return (
+      `Ты проверил(а) соединение R₁ = ${r1} Ом и R₂ = ${r2} Ом (${schemeName} схема: R_общ = ${rTotal} Ом, I_общ = ${iTotal} А). ` +
+      'Убедись, что в выводе объяснено, почему параллельное добавление ветви снижает R_общ ниже каждого из резисторов и увеличивает ток от источника.'
+    );
+  }
+  if (payload.endpointType === 'analyze') {
+    return (
+      `Собрано замеров: ${measurements.length}. В текущей схеме (${schemeName}) R_общ = ${rTotal} Ом, общий ток I_общ = ${iTotal} А (I₁ = ${i1} А, I₂ = ${i2} А).\n\n` +
+      'Сравни общий ток для одинаковых R₁ и R₂ в последовательном и параллельном включении: почему при параллельном подключении ток больше?'
+    );
+  }
+  if (payload.mode === 'free' || payload.endpointType === 'explain') {
+    return (
+      `Собрана ${schemeName} цепь из R₁ = ${r1} Ом и R₂ = ${r2} Ом при U = ${voltage} В. Эквивалентное сопротивление равно R_общ = ${rTotal} Ом, поэтому общий ток составляет I_общ = ${iTotal} А (в ветвях I₁ = ${i1} А, I₂ = ${i2} А).\n\n` +
+      'Что произойдёт с общим током, если переключить схему на другой тип соединения, не меняя резисторы?'
+    );
+  }
+  return `Сейчас (${schemeName} схема): R_общ = ${rTotal} Ом, I_общ = ${iTotal} А. Какая величина остаётся одинаковой на обоих резисторах в этой топологии — ток или напряжение?`;
+}
+
+function buildNewtonDemo(payload) {
+  const { parameters, results, measurements } = payload.verifiedContext;
+  const { mass, appliedForce, frictionForce } = parameters;
+  const { netForce, acceleration, isMoving } = results;
+
+  if (payload.endpointType === 'analyze' && payload.action === 'review_conclusion') {
+    return (
+      `Для m = ${mass} кг, F_тяги = ${appliedForce} Н и F_тр = ${frictionForce} Н равнодействующая F_рез = ${netForce} Н, ускорение a = ${acceleration} м/с². ` +
+      'Проверь, указана ли в выводе прямая зависимость a от F_рез и обратная зависимость от массы m.'
+    );
+  }
+  if (payload.endpointType === 'analyze') {
+    return (
+      `В журнале замеров: ${measurements.length}. Сейчас F_рез = ${netForce} Н даёт тележке массой ${mass} кг ускорение a = ${acceleration} м/с².\n\n` +
+      'Если при той же F_рез удвоить массу тележки, как и почему изменится её ускорение?'
+    );
+  }
+  if (!isMoving) {
+    return (
+      `Тяга F_тяги = ${appliedForce} Н не превышает силу трения F_тр = ${frictionForce} Н, поэтому равнодействующая F_рез = 0 Н и ускорение a = 0 м/с² — тележка покоится.\n\n` +
+      'Какое минимальное значение силы тяги нужно задать, чтобы тележка начала ускоряться?'
+    );
+  }
+  if (payload.mode === 'free' || payload.endpointType === 'explain') {
+    return (
+      `На тележку массой ${mass} кг действует сила тяги ${appliedForce} Н и встречная сила трения ${frictionForce} Н. Равнодействующая F_рез = ${netForce} Н сообщает ей ускорение a = F_рез / m = ${acceleration} м/с².\n\n` +
+      'Что произойдёт с ускорением, если увеличить массу тележки вдвое при тех же силах?'
+    );
+  }
+  return `На стенде: m = ${mass} кг, F_рез = ${netForce} Н, a = ${acceleration} м/с². Как изменится наклон графика a(F), если увеличить массу m?`;
+}
+
 export function generateDemoMentorReply(payload) {
   if (payload.isInjectionAttempt) {
     return INJECTION_DEFLECTION;
@@ -190,6 +252,10 @@ export function generateDemoMentorReply(payload) {
       return buildProjectileDemo(payload);
     case 'refraction':
       return buildRefractionDemo(payload);
+    case 'series-parallel':
+      return buildSeriesParallelDemo(payload);
+    case 'newtons-second-law':
+      return buildNewtonDemo(payload);
     default:
       return 'Опиши, какие изменения параметров ты сейчас наблюдаешь в симуляции.';
   }

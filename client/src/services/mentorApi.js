@@ -37,6 +37,18 @@ function buildOfflineFallbackReply(endpointType, payload) {
       'Какой угол запуска обеспечит максимальную дальность?'
     );
   }
+  if (experimentId === 'series-parallel') {
+    return (
+      `[Локальный Demo-режим: сервер недоступен] В ${parameters.circuitType === 'parallel' ? 'параллельной' : 'последовательной'} цепи ` +
+      `R_общ = ${results.rTotal} Ом, I_общ = ${results.iTotal} А.\n\nСравни общий ток с противоположным типом соединения.`
+    );
+  }
+  if (experimentId === 'newtons-second-law') {
+    return (
+      `[Локальный Demo-режим: сервер недоступен] При m = ${parameters.mass} кг и F_рез = ${results.netForce} Н ` +
+      `ускорение a = ${results.acceleration} м/с².\n\nКак изменится ускорение при удвоении массы?`
+    );
+  }
   return (
     `[Локальный Demo-режим: сервер недоступен] При n₁ = ${parameters.n1}, n₂ = ${parameters.n2} и θ₁ = ${parameters.incidentAngle}° ` +
     (results.isTotalInternalReflection
